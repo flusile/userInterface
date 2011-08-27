@@ -1,0 +1,158 @@
+/*
+ * #name - id
+ * .name - class
+ * name - element
+ * name name ... - Element und dessen Unterelement ...
+ * elem.class - für alle Elemente elem, die mit class ausgezeichnet sind
+ ' .class1.class2 - Wenn class1 UND class2 zugewiesen sind.
+ */
+ 
+/*
+ * class werte
+ * wird für die Anzeige von Paremetern verwendet
+ */
+.werte {
+	list-style: none;
+	padding: 0;
+	margin: 2px;
+}
+
+aside {
+    position: fixed; /* fixed: klebt im Fenster, absolute: scrollt mit */
+    right: 1em; /* em - Schrifthöhe */
+    top: 1em;
+    background-color: rgba(250, 250, 250, 1);
+    border: 1px solid rgb(64, 9, 14);
+    border-radius: 4px;
+    padding: 1em;
+    font-size: 80%;
+}
+
+aside ol {
+	list-style: none;
+	padding: 0;
+	margin: 2px;
+}
+
+/* Der Kopf der Seite */
+header {
+    border-bottom: 3px solid rgb(64, 9, 14);
+    background-color: rgb(193, 180, 28);
+	/* padding drüber ?? drunter ??? */
+    padding: 2em 0.5em 0.5em 0.5em;
+    font-size: 150%;
+    font-weight: bold;
+    color: white;
+}
+
+/* Der eientlice Inhalt (die Summe aller Reiter) */
+#content {
+    padding: 1em;
+}
+
+/* Beschreibt die Headerzeile der Tabs
+ * wird per javascript eingefügt
+ */
+.tabs-header {
+    border-bottom: 3px solid #666666;
+    padding: 0;
+    width: 100%;
+    overflow: hidden;
+    data-border-radius: 30px;
+}
+
+.tabs-header li {
+    display: block;
+    float: left;
+    margin: 0 0.3em 0 0;
+    cursor: pointer;
+    background-color: #999999;
+    padding: 0.5em 1em;
+    color: white;
+    list-style-type: none;
+    border-radius: 30px;
+}
+
+.tabs-header li.selected {
+    background-color: #666666;
+    border-radius: 3px;
+}
+
+.shrink-wrap {
+    width: 100%;
+    overflow: hidden;
+}
+
+.shrink-wrap form {
+    float: left;
+}
+
+/* Formatirungen für Elemente */
+body {
+    margin: 0;
+    padding: 0;
+    color: #333333;
+    font-family: sans-serif;
+}
+
+h2 {
+    color: rgb(193, 18, 28);
+    font-size: 120%;
+    margin: 1em 0 0.5em 0;
+    padding: 0;
+}
+
+h3 {
+    font-size: 100%;
+    font-weight: bold;
+    margin: 1em 0 0.5em 0;
+}
+
+/* Formatierung für die Formulare - obsolet */
+form {
+    border: 1px solid #cccccc;
+    background-color: #eeeeee;
+    margin: 0.5em 0;
+    padding: 0.5em;
+}
+form h3 {
+    margin: 0 0 0.5em 0;
+}
+form .hint {
+    font-size: 80%;
+    margin: 0.5em 0;
+}
+form .field {
+    margin: 0.5em 0;
+}
+form .buttons {
+    margin-top: 0.5em;
+    border-top: 1px solid #cccccc;
+    padding-top: 0.5em;
+    text-align: right;
+}
+table.visible {
+    margin: 0.5em 0;
+    border: 1px solid #cccccc;
+    border-collapse: collapse;
+}
+table.visible th, #environment td {
+    padding: 0.2em 0.5em;
+}
+table.visible thead {
+    background-color: #dddddd;
+}
+table.visible thead th {
+    text-align: left;
+    border-bottom: 1px solid #cccccc;
+    font-weight: bold;
+}
+table.visible tbody {
+    background-color: #eeeeee;
+}
+table.visible tbody td {
+    border-bottom: 1px solid #cccccc;
+}
+table.visible th, table.visible td {
+    padding: 0.2em 0.5em;
+}

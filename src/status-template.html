@@ -1,0 +1,274 @@
+<html>
+<!--meta http-equiv="refresh" content="1; URL=/"-->
+
+<head>
+<title>{{ context:processName }}</title>
+<style type="text/css">
+body {
+    margin: 0;
+    padding: 0;
+    color: #333333;
+    font-family: sans-serif;
+}
+#site-id {
+    border-bottom: 3px solid rgb(64, 9, 14);
+    background-color: rgb(193, 180, 28);
+    padding: 3em 0.5em 0.5em 0.5em;
+    font-size: 150%;
+    font-weight: bold;
+    color: white;
+}
+#server-info {
+    position: absolute;
+    right: 1em;
+    top: 1em;
+    background-color: white;
+    border: 1px solid rgb(64, 9, 14);
+    padding: 1em;
+    font-size: 80%;
+}
+#content {
+    padding: 1em;
+}
+h2 {
+    color: rgb(193, 18, 28);
+    font-size: 120%;
+    margin: 1em 0 0.5em 0;
+    padding: 0;
+}
+h3 {
+    font-size: 100%;
+    font-weight: bold;
+    margin: 1em 0 0.5em 0;
+}
+.tabs-header {
+    border-bottom: 3px solid #666666;
+    padding: 0;
+    width: 100%;
+    overflow: hidden;
+}
+.tabs-header li {
+    display: block;
+    float: left;
+    margin: 0 0.3em 0 0;
+    cursor: pointer;
+    background-color: #999999;
+    padding: 0.5em 1em;
+    color: white;
+    list-style-type: none;
+}
+.tabs-header li.selected {
+    background-color: #666666;
+}
+.shrink-wrap {
+    width: 100%;
+    overflow: hidden;
+}
+.shrink-wrap form {
+    float: left;
+}
+form {
+    border: 1px solid #cccccc;
+    background-color: #eeeeee;
+    margin: 0.5em 0;
+    padding: 0.5em;
+}
+form h3 {
+    margin: 0 0 0.5em 0;
+}
+form .hint {
+    font-size: 80%;
+    margin: 0.5em 0;
+}
+form .field {
+    margin: 0.5em 0;
+}
+form .buttons {
+    margin-top: 0.5em;
+    border-top: 1px solid #cccccc;
+    padding-top: 0.5em;
+    text-align: right;
+}
+table.visible {
+    margin: 0.5em 0;
+    border: 1px solid #cccccc;
+    border-collapse: collapse;
+}
+table.visible th, #environment td {
+    padding: 0.2em 0.5em;
+}
+table.visible thead {
+    background-color: #dddddd;
+}
+table.visible thead th {
+    text-align: left;
+    border-bottom: 1px solid #cccccc;
+    font-weight: bold;
+}
+table.visible tbody {
+    background-color: #eeeeee;
+}
+table.visible tbody td {
+    border-bottom: 1px solid #cccccc;
+}
+table.visible th, table.visible td {
+    padding: 0.2em 0.5em;
+}
+</style>
+</head>
+
+<body>
+<div id="site-id">{{ context:processName }}</div>
+
+<div id="server-info">
+Version: {{ context:version }}<br />
+Compiled: {{ context:compiled }}<br />
+PID: {{ context:pid }}<br />
+Started: {{ context:started }}<br />
+GET requests: {{ context:get_requests }}<br />
+POST requests: {{ context:post_requests }}<br />
+Zeit: {{ time }}
+</div>
+
+<div id="content">
+
+<!-- <br />
+ZentralVorlauf: {{ sensor:zentralvorlauf }}
+-->
+
+<div class="tabs">
+
+<div id="services-tab" class="tab">
+ <h2 class="tab-label">Brauchwasser</h2>
+ <div class="shrink-wrap">
+  <p>
+  ZentralVorlauf: {{ sensor:zentralvorlauf }} <br />
+  Status Regler:  {{ regler:BrauchWasser:Status }} <br />
+  Ist: {{ sensor:brauchwasser }} <br />
+  Soll: {{ regler:BrauchWasser:soll }} <br />
+  mehrtemperatur: {{ regler:BrauchWasser:temperaturOver }} <br />
+  Überheizen bis: {{ regler:BrauchWasser:kann }} <br />
+  Sperrzeit: {{ regler:BrauchWasser:sperrzeitPumpe }} <br />
+  Ende der Sperrzeit: {{ regler:BrauchWasser:endeNachlauf }} <br />
+  Status Pumpe: {{ actor:BrauchWasserPumpe:state }} <br />
+  Zustand Pumpe: {{ actor:BrauchWasserPumpe:on }} <br />
+  </p>
+<!--
+  <form action="run/auto" method="post" enctype="multipart/form-data">
+   <h3>Run conversion layer message</h3>
+   <div class="field">
+    <label for="id_request">Request:</label>
+    <input type="file" id="id_request" name="request" />
+   </div>
+   <div class="field">
+    <label for="id_request_type">Request type:</label>
+    <select id="id_request_type" name="request_type">
+     <option value="auto">Auto detect</option>
+     <option value="binary">Binary</option>
+     <option value="xml">XML</option>
+    </select>
+   </div>
+   <div class="field">
+    <label for="id_response_type">Response type:</label>
+    <select id="id_response_type" name="response_type">
+     <option value="auto">Auto detect</option>
+     <option value="binary">Binary</option>
+     <option value="xml">XML</option>
+    </select>
+   </div>
+   <div class="buttons">
+    <input type="submit" value="Run" />
+   </div>
+  </form>
+  -->
+ </div>
+</div><!-- id="services-tab" -->
+
+
+
+<div id="tools-tab" class="tab">
+<h2 class="tab-label">Tools</h2>
+<div class="shrink-wrap">
+<form action="convl/xml" method="post" enctype="multipart/form-data">
+<h3>Convert to XML</h3>
+<input type="file" name="request" />
+<input type="submit" />
+</form>
+</div>
+</div><!-- id="tools-tab" -->
+
+<div id="environment-tab" class="tab">
+<h2 class="tab-label">Environment</h2>
+<table id="environment" class="visible">
+<thead>
+<th id="environment-name">Name</th>
+<th id="environment-value">Value</th>
+</thead>
+<tbody>
+{{ env_tr_liste }}
+</tbody>
+</table>
+</div><!-- id="environment-tab" -->
+
+<div id="parameter-tab" class="tab">
+<h2 class="tab-label">Parameters</h2>
+{{ config_br_liste }}
+</div><!-- id="settings-tab" -->
+
+<div class="tab" id="tab-history">
+<h2 class="tab-label">History</h2>
+<table id="history" class="visible">
+<thead>
+<tr>
+<th>Timestamp</th>
+<th>Request</th>
+<th>Reponse</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1970-01-01&nbsp;00:00:00</td>
+<td><a href="#request.xml">XML</a> <a href="request.bin">BIN</a> <a href="request.prvl">PRVL</a></td>
+<td><a href="#response.xml">XML</a> <a href="response.bin">BIN</a> <a href="request.prvl">PRVL</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+</div><!-- class="tabs" -->
+
+</div><!-- id="content" -->
+
+<script type="text/javascript" src="/jquery.min.js"></script>
+<script type="text/javascript">
+$(function() {
+    $(".tabs").each(function() {
+        var header = $('<ul class="tabs-header"></ul>')
+        var content = $('<div class="tabs-content"></div>')
+        $(this).prepend(header)
+        header.after(content)
+        $(this).children('.tab').each(function(i) {
+            var label = $(this).children('.tab-label')
+            var tab = $('<li class="tab"/>')
+            header.append(tab)
+            tab.text(label.text())
+            label.remove()
+            content.append($(this))
+            tab.click(function() { selectTab(i) })
+        })
+        function selectTab(i) {
+            var tabs = header.children()
+            tabs.removeClass('selected')
+            $(tabs[i]).addClass('selected')
+            var contents = content.children()
+            contents.hide()
+            $(contents[i]).show()
+        }
+        selectTab(0)
+    })
+})
+</script>
+
+</body>
+
+</html>

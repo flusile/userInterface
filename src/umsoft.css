@@ -1,0 +1,28 @@
+/* */
+ /* Wenn Firefox meter nicht unterstützt, dann nehmen wir eben chrome
+  * für die Anzeige der Steuerung
+  */
+meter {
+	width: 280px;
+	display: block;
+	border: 1px solid #000;
+	position: relative;
+}
+
+.fill {
+	background-color: #999;
+	background-image: -moz-linear-gradient(
+		center bottom,
+		rgb(14,242,30) 37%,
+		rgb(41,255,57) 69%
+	);
+}
+
+.label{
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 1000;
+	text-align: center;
+}
+
