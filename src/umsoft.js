@@ -58,8 +58,38 @@ function lpReq()
   });
 }
 
+function f0(z)
+{
+  var s = z.toString();
+  if (s.length < 2)
+  {
+    return "0" + s;
+  }
+  return s;
+}
+
+function DateString(d)
+{
+  var res = f0(d.getDate()) + "." + f0(d.getMonth()) + "." + d.getFullYear();
+  res += " " + f0(d.getHours()) 
+  res += ":" + f0(d.getMinutes()) 
+  res += ":" + f0(d.getSeconds());
+  return res;
+}
+
+function UpDate()
+{
+  var ds = DateString(new Date());
+  $(".ctime").each(function(i) 
+  {
+    $(this).html(ds);
+  });
+}
+
 $(function()
 { 
   // starte alle 2 Sekunden einen Polling-Request
   glob_lp = setTimeout(lpReq, 500);
+  setInterval(UpDate, 1000);
 })
+
