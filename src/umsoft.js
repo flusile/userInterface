@@ -30,7 +30,7 @@ $("meter").each(function()
 
 $(function()
 { 
-  $("#time").html("4711");
+  $("#acount").html("1");
   $("#context_started").html("47:11");
 })
 	
@@ -43,7 +43,8 @@ var myAjaxErrorHandler = function(xhr, errmsg, err)
 $.ajaxSetup({ error: myAjaxErrorHandler });
 function lpReq() 
 {
-  $.getJSON("/LP", function(data)
+  var acount = $("#acount").html();
+  $.getJSON("/LP?" + acount, function(data)
   {
     var name;
     for (name in data)
