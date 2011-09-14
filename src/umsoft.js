@@ -4,6 +4,8 @@
 // setzt jquery voraus
 var glob_lp;
 var glob_cnt = 0;
+var LPStat;
+ 
 //init_meter = function()
 //$(function()
 //{
@@ -38,6 +40,8 @@ var myAjaxErrorHandler = function(xhr, errmsg, err)
 {
   alert("Ajax failed: " + errmsg + " : " + err);
   clearInterval(glob_lp);
+  glob_lp = null;
+  LPStat.html("Notaus");
 }
      
 $.ajaxSetup({ error: myAjaxErrorHandler });
@@ -89,8 +93,25 @@ function UpDate()
 
 $(function()
 { 
-  // starte alle 2 Sekunden einen Polling-Request
-  glob_lp = setTimeout(lpReq, 500);
+  LPStat = $("#LPStatus");
+  if (location.protocol != "file:")
+  {
+	// starte alle 2 Sekunden einen Polling-Request
+	// Wenn wir von einem Server kommen
+	glob_lp = setTimeout(lpReq, 500);
+	LPStat.html("ein");
+	LPStat.onclick(function() {
+		if (glob_lp == null)
+		{
+			glob_lp = setTimeout(lpReq, 500);
+			LPStat.html("ein");
+		}
+	});
+  }
+  else
+  {
+	LPStat.html("deaktiviert");
+  }
   setInterval(UpDate, 1000);
 })
 
