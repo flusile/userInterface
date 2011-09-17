@@ -32,7 +32,7 @@ $("meter").each(function()
 
 $(function()
 { 
-  $("#acount").html("1");
+  $("#acount").html("0");
   $("#context_started").html("47:11");
 })
 	
@@ -98,8 +98,9 @@ $(function()
   {
 	// starte alle 2 Sekunden einen Polling-Request
 	// Wenn wir von einem Server kommen
-	glob_lp = setTimeout(lpReq, 500);
+	//glob_lp = setTimeout(lpReq, 500);
 	LPStat.html("ein");
+	lpReq();
 	/*LPStat.onclick(function() {
 		if (glob_lp == null)
 		{
