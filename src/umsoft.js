@@ -100,13 +100,13 @@ $(function()
 	// Wenn wir von einem Server kommen
 	glob_lp = setTimeout(lpReq, 500);
 	LPStat.html("ein");
-	LPStat.onclick(function() {
+	/*LPStat.onclick(function() {
 		if (glob_lp == null)
 		{
 			glob_lp = setTimeout(lpReq, 500);
 			LPStat.html("ein");
 		}
-	});
+	});*/
   }
   else
   {
