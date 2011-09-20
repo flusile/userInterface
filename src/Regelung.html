@@ -61,17 +61,17 @@ Statt der vielen div genügt dann ein nav.
 					<li>Status Pumpe: <span class="actor_BrauchWasserPumpe_state">{{ actor:BrauchWasserPumpe:state }}</span></li>
 					<li>Zustand Pumpe: <span class="actor_BrauchWasserPumpe_on">{{ actor:BrauchWasserPumpe:on }}</span></li>
 				</ol>
-				<meter 
+				<meter  id="meter_ZentralVorlauf"
 					title="Füllstand Pufferspeicher"
 					value="75"
 					min="0"
 					max="100"
 				>Füllstand Pufferspeicher: 75°C</meter> 
-				<meter 
+				<meter  id="meter_BrauchWasser"
 					title="Füllstand Pufferspeicher"
 					value="55"
-					min="20"
-					max="80"
+					min="0"
+					max="100"
 				>Warmwasser: 55°C</meter> 
 			</div>
 		</article><!-- id="brauchwasser-tab" -->

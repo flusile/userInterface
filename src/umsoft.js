@@ -57,7 +57,19 @@ function lpReq()
       {
         $(this).html(data[name]);
       });
+      if (name == "sensor_ZentralVorlauf")
+      {
+	var mb = $("#meter_ZentralVorlauf")
+	mb.attr("value", data[name]);
+      }
+      else if (name == "sensor_BrauchWasser")
+      {
+	var mb = $("#meter_BrauchWasser")
+	mb.attr("value", data[name]);
+      }	
     }
+    
+    // jetzt die Meter setzen
     
     glob_lp = setTimeout(lpReq, 500);
   });
