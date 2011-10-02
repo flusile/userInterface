@@ -39,7 +39,7 @@ $(function()
 var myAjaxErrorHandler = function(xhr, errmsg, err)
 {
   alert("Ajax failed: " + errmsg + " : " + err);
-  clearInterval(glob_lp);
+  clearTimeout(glob_lp);
   glob_lp = null;
   LPStat.html("Notaus");
 }
@@ -48,13 +48,16 @@ $.ajaxSetup({ error: myAjaxErrorHandler });
 function lpReq() 
 {
   var acount = $("#acount").html();
+  LPStat.html("req LP " + acount);
   $.getJSON("/LP?" + acount, function(data)
   {
+    LPStat.html("LP responded");
     var name;
     for (name in data)
     {
       $("." + name).each(function(i) 
       {
+	LPStat.html("LP setze " + name + " auf " + data[name]);
         $(this).html(data[name]);
       });
       if (name == "sensor_ZentralVorlauf")
@@ -72,6 +75,7 @@ function lpReq()
     // jetzt die Meter setzen
     
     glob_lp = setTimeout(lpReq, 500);
+    LPStat.html("LP TO neu gesetzt");
   });
 }
 
