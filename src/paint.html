@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+        <title>Paint mit Canvas</title>
+        <style type="text/css" media="screen">
+            body { background:#000; color:#FFF; text-align:left; font-size:90%; font-family:Verdana, Geneva, Arial, Helvetica, sans-serif; margin:0; padding:0; }
+            canvas { cursor:crosshair; background:#FFF; margin:16px; }
+            p { margin:16px; }
+            #farben { margin:16px; }
+            #farben:after { content:"."; display:block; width:100%; clear:both; height:0; visibility:hidden; }
+                #farben div { height:32px; width:64px; float:left; border:2px solid #666; cursor:pointer; margin-right:16px; }
+            #rot { background:red; }
+            #gruen { background:green; }
+            #blau { background:blue; }
+        </style>
+    </head>
+    <script type="text/javascript">
+        // Die Canvas-Funktion beim Laden der Seite aufrufen
+        if(window.addEventListener){
+            addEventListener("load", drawCanvas, false);
+        }
+        // Das Canvas-Element
+        function drawCanvas(){
+            var kx = document.getElementById('kx');
+            var ky = document.getElementById('ky');
+            var canvas = document.getElementById('testcanvas1');
+            if(canvas.getContext){
+                var context = canvas.getContext('2d');
+            }
+            // Cursorposition
+            var x, y;
+            canvas.onmousemove = function(e){
+                x = e.clientX-canvas.offsetLeft;
+                y = e.clientY-canvas.offsetTop;
+                kx.innerHTML = x;
+                ky.innerHTML = y;
+                paint();
+            }
+            // Malen
+            var active = false;
+            canvas.onmousedown = function(){ active = true; }
+            canvas.onmouseup = function(){ active = false; }
+            function paint(){
+                if(active){
+                    context.fillRect(x, y, 10, 10);
+                }
+            }
+            // Farbe wählen
+            var red = document.getElementById('rot');
+            red.onclick = function(){ context.fillStyle = "rgb(255, 0, 0)"; }
+            var green = document.getElementById('gruen');
+            green.onclick = function(){ context.fillStyle = "rgb(0, 255, 0)"; }
+            var blue = document.getElementById('blau');
+            blue.onclick = function(){ context.fillStyle = "rgb(0, 0, 255)"; }
+            // Default-Farbe
+            context.fillStyle = "rgb(255, 0, 0)";
+        }
+    </script>
+    <body>
+
+        <canvas id="testcanvas1" width="800" height="600">
+            Dein Browser kann diese Grafik nicht darstellen.
+        </canvas>
+        <div id="farben">
+            <div id="rot"></div>
+            <div id="gruen"></div>
+            <div id="blau"></div>
+        </div>
+        <p>
+            Koordinaten: <span id="kx">0</span> &times; <span id="ky">0</span>
+        </p>
+
+    </body>
+</html>
