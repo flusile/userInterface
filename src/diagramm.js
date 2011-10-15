@@ -79,6 +79,12 @@ $(function()
   var bluline = $("#blueline");
   var active  = false;
   var svga    = $("#svg");
+
+  // zwei Konstanten für die Abmessungen des Diagramms
+  var svg_width = 24*30;
+  var svg_height = 300;
+  
+  // Wir müssen den offset glattziehen. Er ist initial sehr krumm.
   var xxx     = svga.offset();
   var col     = Math.ceil(xxx.left);
   var cot     = Math.ceil(xxx.top);
@@ -86,23 +92,22 @@ $(function()
   xxx.top=cot;
   svga.offset(xxx);
   
-//  svga.append(mLine("line1", 10, 10, 100, 100, "black", 5));
-//  svga.append(mLine("line2", 10, 20, 220, 330, "green", 3));
-//  svga.append(mwLine("line3", 0, 0, 24*30, "yellow", 3));
-//  svga.append(msLine("line4", 0, 0, 300, "brown", 3));
-//  svga.append(mCircle("c1", 100, 100, 30, "brown"));
-//  svga.append(mSquare("sq1", 200, 100, 30, "brown"));
-
+  // TODO: Das sind Beispieldaten. Die müssen später vom Server kommen
   var data = '[{"ts":0,"temp":10},{"ts":600,"temp":30},{"ts":1320,"temp":20}]';
+  
+  // Daten parsen
   var va = jQuery.parseJSON(data);
+  
   // Hintergrund malen
-  svga.append(mRect("ground", 0, 0, 24*30, 300, "rgb(200,200,200)"));
+  // TODO: Der Hintergrund hat jetzt keinen Platz für Beschriftung!!!
+  svga.append(mRect("ground", 0, 0, svg_width, svg_height, "rgb(200,200,200)"));
 
   // 1000/24 == 41,666
   // Koordinatensystem zeichnen
-  svga.append(mwLine("koord_h", 0, 300, 24*30, "rgb(200,0,0)", 3));
-  svga.append(msLine("koord_v", 0, 0, 300, "rgb(200,0,0)", 3));
+  svga.append(mwLine("koord_h", 0, svg_height, svg_width, "rgb(200,0,0)", 3));
+  svga.append(msLine("koord_v", 0, 0, svg_height, "rgb(200,0,0)", 3));
 
+  // Entlang des vectors die Linien zeichnen.
   var x=0; // zeit
   var y=0; // Temperatur in Px von canvas.height herunter
   for (idx in va)
@@ -111,7 +116,7 @@ $(function()
     var str = e.ts + " " + e.temp;
     $("#hilfe").html(str);
     var nx=e.ts/2;	
-    var ny=300 - e.temp*5;
+    var ny=svg_height - e.temp*5;
     if (nx != 0)
     {
       // 1. Waagerecht - die Temperatur-Linie
@@ -126,7 +131,7 @@ $(function()
   }
   
   // zum schluss die letzte waagerechte Temperatur-Linie
-  addTempLine(svga, idx, x, y, 24*30-x);
+  addTempLine(svga, idx, x, y, svg_width-x);
   
 /*
   redline.mousemove(function(e)
