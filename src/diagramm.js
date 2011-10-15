@@ -24,9 +24,9 @@ $(function()
 
   //$("#hilfe").html(str);
   canvas.mousemove(function(e)
-  {
-    var x = e.clientX - col;
-    var y = e.clientY - cot;
+  { // früher: clientX/Y
+    var x = e.pageX - col;
+    var y = e.pageY - cot;
     kx.html(x);
     ky.html(y);
     if (active)
