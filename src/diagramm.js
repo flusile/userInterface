@@ -3,6 +3,7 @@
 var kx;
 var ky;
 var help;
+var hulpe;
 
 /**
  * Klasse Diagramm.
@@ -20,17 +21,23 @@ function Diagramm(id_)
   var svg_height = 300;  // die Höhe des Diagramms
 
   // private Function for writing a line
-  function addTempLine(id, x, y, len)
+  function addTempLine(idx, x, y, len)
   {
-    var tl = mwLine("templine_" + id, x, y, len, "rgb(0,200,0)", 3);
+    var tl = mwLine("templine_" + idx, x, y, len, "rgb(0,200,0)", 3);
+    tl.setAttribute("ref", idx);
     $(tl).bind("mousedown", startDrag);
     svga.append(tl);
-    svga.append(mCircle("temp_pt_" + id, x, y, 6, "rgb(0,0,200)"));
+    va[idx].tempLine = tl;
+    va[idx].c1 = mCircle("temp_pt_" + idx, x, y, 6, "rgb(0,0,200)"); 
+    va[idx].c1.setAttribute("ref", idx);
+    svga.append(va[idx].c1);
   }
 
-  function addTimeLine(id, x, y, len)
+  function addTimeLine(idx, x, y, len)
   {
-    svga.append(msLine("timeline_" + id, x, y, len, "rgb(0,200,0)", 3));
+    va[idx].timeLine = msLine("timeline_" + idx, x, y, len, "rgb(0,200,0)", 3);
+    va[idx].timeLine.setAttribute("ref", idx);
+    svga.append(va[idx].timeLine);
   }
 
   // justiert den Offset der Zeichenfläche auf ganze Pixel und speichert die Werte für die spätere Verwendung
@@ -53,10 +60,27 @@ function Diagramm(id_)
     xxx.top = e.pageY - cot;
     kx.html(xxx.left);
     ky.html(xxx.top);
-    //  $(currentLine).offset(xxx);
+    
+    var delta = currentLine.getAttribute("y1") - xxx.top;
+    
     currentLine.setAttribute("y2", xxx.top);
     currentLine.setAttribute("y1", xxx.top);
-    //obj.setAttribute("y2",           y2);
+    var idx = currentLine.getAttribute("ref");
+    va[idx].temp = (xxx.top + svg_height) / 5;
+    va[idx].c1.setAttribute("cy", xxx.top);
+    if (va[idx].timeLine) 
+    {
+      hulpe.text(va[idx].timeLine.getAttribute("y1"));
+      va[idx].timeLine.setAttribute("y1", va[idx].timeLine.getAttribute("y1")*1 - delta);
+    }
+    if (idx > 0)
+    {
+      var e = va[idx-1];
+      if (e.timeLine)
+      {
+        e.timeLine.setAttribute("y2", e.timeLine.getAttribute("y2")*1 - delta);
+      }
+    }
   }
 
   function startDrag(e)
@@ -110,8 +134,11 @@ function Diagramm(id_)
 
   function init()
   {
-    $(svga).bind("mouseup", stoppDrag);
+    // zuerst die Position korrigieren und speichern
     adjustOffset();
+
+    // MouseButtonUp zentral registrieren
+    $(svga).bind("mouseup", stoppDrag);
 
     // Hintergrund malen
     // TODO: Der Hintergrund hat jetzt keinen Platz für Beschriftung!!!
@@ -131,6 +158,7 @@ $(function()
   kx          = $("#x");
   ky          = $("#y");
   help        = $("#mud");
+  hulpe       = $("#hilfe");
   
   kx.html(77);
   ky.html(88);
