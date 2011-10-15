@@ -31,8 +31,8 @@
             // Cursorposition
             var x, y;
             canvas.onmousemove = function(e){
-                x = e.clientX-canvas.offsetLeft;
-                y = e.clientY-canvas.offsetTop;
+                x = e.pageX-canvas.offsetLeft;
+                y = e.pageY-canvas.offsetTop;
                 kx.innerHTML = x;
                 ky.innerHTML = y;
                 paint();
