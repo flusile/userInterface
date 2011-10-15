@@ -1,3 +1,7 @@
+var kx;
+var ky;
+var mud;
+var svga;
 
 function mLine(id, x1, y1, x2, y2, stroke, strokewidth)
 {
@@ -58,9 +62,41 @@ function mCircle(id, x, y, radius, colour)
   return obj;
 }
 
+var currentLine;
+var col;
+var cot;
+function doDrag(e)
+{
+  var xxx = $(currentLine).offset();
+  //xxx.left = e.pageX - col;
+  xxx.top = e.pageY - cot;
+  kx.html(xxx.left);
+  ky.html(xxx.top);
+//  $(currentLine).offset(xxx);
+  currentLine.setAttribute("y2", xxx.top);
+  currentLine.setAttribute("y1", xxx.top);
+  //obj.setAttribute("y2",           y2);
+}
+
+function startDrag(e)
+{
+  currentLine = e.currentTarget;
+  $(svga).bind("mousemove", doDrag);
+  mud.html("start dragging");
+}
+
+function stoppDrag(e)
+{
+  $(svga).unbind("mousemove");
+  currentLine = null;
+  mud.html("end dragging at");
+}
+
 function addTempLine(svg, id, x, y, len)
 {
-  svg.append(mwLine("templine_" + id, x, y, len, "rgb(0,200,0)", 3));
+  var tl = mwLine("templine_" + id, x, y, len, "rgb(0,200,0)", 3);
+  $(tl).bind("mousedown", startDrag);
+  svg.append(tl);
   svg.append(mCircle("temp_pt_" + id, x, y, 6, "rgb(0,0,200)"));
 }
 
@@ -69,16 +105,13 @@ function addTimeLine(svg, id, x, y, len)
   svg.append(msLine("timeline_" + id, x, y, len, "rgb(0,200,0)", 3));
 }
 
-
 $(function()
 {
-  var kx      = $("#x");
-  var ky      = $("#y");
-  var mud     = $("#mud");
-  var redline = $("#redline");
-  var bluline = $("#blueline");
-  var active  = false;
-  var svga    = $("#svg");
+  kx          = $("#x");
+  ky          = $("#y");
+  mud         = $("#mud");
+  svga        = $("#svg");
+  $(svga).bind("mouseup", stoppDrag);
 
   // zwei Konstanten für die Abmessungen des Diagramms
   var svg_width = 24*30;
@@ -86,14 +119,14 @@ $(function()
   
   // Wir müssen den offset glattziehen. Er ist initial sehr krumm.
   var xxx     = svga.offset();
-  var col     = Math.ceil(xxx.left);
-  var cot     = Math.ceil(xxx.top);
+  col         = Math.ceil(xxx.left);
+  cot         = Math.ceil(xxx.top);
   xxx.left=col;
   xxx.top=cot;
   svga.offset(xxx);
   
   // TODO: Das sind Beispieldaten. Die müssen später vom Server kommen
-  var data = '[{"ts":0,"temp":10},{"ts":600,"temp":30},{"ts":1320,"temp":20}]';
+  var data = '[{"ts":0,"temp":10},{"ts":600,"temp":30},{"ts":820,"temp":35},{"ts":1320,"temp":20}]';
   
   // Daten parsen
   var va = jQuery.parseJSON(data);
