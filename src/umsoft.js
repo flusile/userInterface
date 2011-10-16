@@ -42,6 +42,7 @@ var myAjaxErrorHandler = function(xhr, errmsg, err)
   clearTimeout(glob_lp);
   glob_lp = null;
   LPStat.html("Notaus");
+  glob_lp = setTimeout(lpReq, 5000);
 }
      
 $.ajaxSetup({ error: myAjaxErrorHandler });
