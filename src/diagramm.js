@@ -35,11 +35,19 @@ function Diagramm(id_)
   var currentLine; // aktuelles Linien-Objekt für die eventHandler
   var col; // adjustments für links
   var cot; // und oben.
-  var svga = $("#" + id);; // die svg-area, auf der wir malen
+  var svga = $("#" + id); // die svg-area, auf der wir malen
   var svg_width = 24*30; // die Breite des Diagramms
   var svg_height = 300;  // die Höhe des Diagramms
-  var slot_size = 5; // Nindestzeit in Pixeln
+  var px_min_minutes = 5; // Nindestzeit in Pixeln
   var tpListe;
+  
+  // diverse Konstanten
+  var px_minutes_per_px = 2; // nur alle 2 Minuten ein Pixel (sonst wirds zu breit)
+  var px_per_grad = 5; // 5 Pixel pro °C
+  var px_zeit_0000 = 0; // Pixelposition für 00:00 Uhr
+  var px_zeit_2400 = px_zeit_0000 + (24*60 / px_minutes_per_px); // Pixelpos für 24:00
+  var px_temperatur_min = svg_height; // Pixelpos für minimale Temperatur
+  var px_temperatur_max = 0; // Pixelpos für maximale Temperatur
 
   // private Function for writing a line
   function addTempLine(tp, x, y, len)
@@ -47,7 +55,7 @@ function Diagramm(id_)
     var tl = mwLine(x, y, len, "rgb(0,200,0)", 5);
     tl.ref = tp;
     $(tl).bind("mousedown", startDragTemp);
-    //svga.append(tl);
+    $(tl).bind("dblclick", splitLine);
     tp.temperaturLine = tl;
   }
 
@@ -58,14 +66,56 @@ function Diagramm(id_)
       tp.timeLine = msLine(x, y, len, "rgb(0,200,0)", 5);
       tp.timeLine.ref = tp;
       $(tp.timeLine).bind("mousedown", startDragTime);
-      //svga.append(tp.timeLine);
+
       tp.circleStart = mCircle(x, y, 6, "rgb(0,0,200)"); 
       tp.circleStart.ref = tp;
-      //svga.append(tp.c1);
+      $(tp.circleStart).bind("dblclick", deleteLeft);
+
       tp.circleEnd = mCircle( x, y+len, 6, "rgb(0,0,200)"); 
       tp.circleEnd.ref = tp;
-      //svga.append(tp.c2);
+      $(tp.circleEnd).bind("dblclick", deleteRight);
+
     }
+  }
+  
+  // private eventhandler
+  // splittet eine Temperaturzeile
+  function splitLine(e)
+  {
+    alert("split line");
+    var cl = e.currentTarget;
+    var ctp = cl.ref;
+    var ntp = new TemperaturPoint();
+    
+    // Werte setzen
+    ntp.temperatur = ctp.temperatur;
+    ntp.zeit = (e.pageX - col) * px_minutes_per_px;
+    
+    // Verketten
+    ntp.prev = ctp.prev;
+    ctp.prev = ntp;
+    ntp.next = ctp;
+    ntp.prev.next = ntp;
+    
+    // zeiten anpassen
+    //ntp.prev.zeit -= px_min_minutes;
+    
+    // neue Objekte erzeugen
+    
+  }
+  
+  // private eventhandler
+  // Löscht die Temperaturangabe links der Zeit
+  function deleteLeft(e)
+  {
+    alert("deleteLeft");
+  }
+  
+  // private eventhandler
+  // Löscht die Temperaturangabe rechts der Zeit
+  function deleteRight(e)
+  {
+    alert("deleteRight");
   }
   
   // justiert den Offset der Zeichenfläche auf ganze Pixel und speichert die Werte für die spätere Verwendung
@@ -101,7 +151,7 @@ function Diagramm(id_)
     currentLine.setAttribute("y2", xxx.top);
     currentLine.setAttribute("y1", xxx.top);
     var tp = currentLine.ref;
-    tp.temperatur = (xxx.top + svg_height) / 5;
+    tp.temperatur = (xxx.top + svg_height) / px_per_grad;
     if (tp.circleStart) tp.circleStart.setAttribute("cy", xxx.top);
     if (tp.timeLine) 
     {
@@ -144,22 +194,22 @@ function Diagramm(id_)
     if (tp.prev)
     {
       var t = parseInt(tp.prev.timeLine.getAttribute("x1"), 10);
-      if (xxx.left <= t + slot_size) return;
+      if (xxx.left <= t + px_min_minutes) return;
     }
     else
     {
       // Ziel ist, daß mindestens ein Slot am Beginn stehen bleibt
-      if (xxx.left <= slot_size) return;
+      if (xxx.left <= px_min_minutes) return;
     }
     
     if (tp.next.timeLine)
     {
       var t = parseInt(tp.next.timeLine.getAttribute("x1"), 10);
-      if (xxx.left >= t - slot_size) return;
+      if (xxx.left >= t - px_min_minutes) return;
     }
     else
     {
-      if (xxx.left >= svg_width - slot_size) return;
+      if (xxx.left >= svg_width - px_min_minutes) return;
     }
     
     var delta = currentLine.getAttribute("x1") - xxx.left;
@@ -198,14 +248,14 @@ function Diagramm(id_)
     var tp = tpListe; // erstes Element holen
     for (tp = tpListe; tp != null; tp = tp.next)
     {
-      var x=tp.zeit / 2; // zeit
-      var y=svg_height - tp.temperatur * 5; // Temperatur in Px von canvas.height herunter
+      var x=tp.zeit / px_minutes_per_px; // zeit
+      var y=svg_height - tp.temperatur * px_per_grad; // Temperatur in Px von canvas.height herunter
       var nx=svg_width;
       var ny;
       if (tp.next)
       {
-        nx = tp.next.zeit / 2; // zeit
-        ny = svg_height - tp.next.temperatur * 5; // Temperatur in Px von canvas.height herunter
+        nx = tp.next.zeit / px_minutes_per_px; // zeit
+        ny = svg_height - tp.next.temperatur * px_per_grad; // Temperatur in Px von canvas.height herunter
       }
       
       // 1. Waagerecht - die Temperatur-Linie
