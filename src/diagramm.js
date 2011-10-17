@@ -6,6 +6,26 @@ var help;
 var hulpe;
 
 /**
+ * Klasse TemperaturPoint
+ */
+function TemperaturPoint()
+{
+  // private member für die Verkettung der Liste
+  var prev;
+  var next;
+  
+  // public member für die Werte
+  this.zeit = 0;
+  this.temperatur = 0;
+  
+  // public member für die Darstellung
+  this.timeLine = null; // SvgLine senkrecht
+  this.temperaturLine = null; // SvgLine waagerecht
+  this.circleStart = null; // die beiden Murmeln am Anfang und Ende der TemperaturLinie
+  this.circleEnd = null;
+}
+
+/**
  * Klasse Diagramm.
  * Beinhaltet alle Funktionen und Daten für ein einzelnes Diagramm.
  */
@@ -15,37 +35,39 @@ function Diagramm(id_)
   var currentLine; // aktuelles Linien-Objekt für die eventHandler
   var col; // adjustments für links
   var cot; // und oben.
-  var va; // value-array. Enthält die Temperatur- und Zeit-Angaben
-  var vao = new Array(); // die svg-Objekte zum va
   var svga = $("#" + id);; // die svg-area, auf der wir malen
   var svg_width = 24*30; // die Breite des Diagramms
   var svg_height = 300;  // die Höhe des Diagramms
   var slot_size = 5; // Nindestzeit in Pixeln
+  var tpListe;
 
   // private Function for writing a line
-  function addTempLine(idx, x, y, len)
+  function addTempLine(tp, x, y, len)
   {
-    var tl = mwLine("templine_" + idx, x, y, len, "rgb(0,200,0)", 3);
-    tl.setAttribute("ref", idx);
+    var tl = mwLine(x, y, len, "rgb(0,200,0)", 5);
+    tl.ref = tp;
     $(tl).bind("mousedown", startDragTemp);
-    svga.append(tl);
-    vao[idx].tempLine = tl;
+    //svga.append(tl);
+    tp.temperaturLine = tl;
   }
 
-  function addTimeLine(idx, x, y, len)
+  function addTimeLine(tp, x, y, len)
   {
-    vao[idx].timeLine = msLine("timeline_" + idx, x, y, len, "rgb(0,200,0)", 3);
-    vao[idx].timeLine.setAttribute("ref", idx);
-    $(vao[idx].timeLine).bind("mousedown", startDragTime);
-    svga.append(vao[idx].timeLine);
-    vao[idx].c1 = mCircle("temp_pt_1_" + idx, x, y, 6, "rgb(0,0,200)"); 
-    vao[idx].c1.setAttribute("ref", idx);
-    svga.append(vao[idx].c1);
-    vao[idx].c2 = mCircle("temp_pt_2_" + idx, x, y+len, 6, "rgb(0,0,200)"); 
-    vao[idx].c2.setAttribute("ref", idx);
-    svga.append(vao[idx].c2);
+    if (tp.next)
+    {
+      tp.timeLine = msLine(x, y, len, "rgb(0,200,0)", 5);
+      tp.timeLine.ref = tp;
+      $(tp.timeLine).bind("mousedown", startDragTime);
+      //svga.append(tp.timeLine);
+      tp.circleStart = mCircle(x, y, 6, "rgb(0,0,200)"); 
+      tp.circleStart.ref = tp;
+      //svga.append(tp.c1);
+      tp.circleEnd = mCircle( x, y+len, 6, "rgb(0,0,200)"); 
+      tp.circleEnd.ref = tp;
+      //svga.append(tp.c2);
+    }
   }
-
+  
   // justiert den Offset der Zeichenfläche auf ganze Pixel und speichert die Werte für die spätere Verwendung
   function adjustOffset()
   {
@@ -59,7 +81,7 @@ function Diagramm(id_)
   }
   
   // private eventhandler
-  // wird als mousover aufgerufen beim Ziehen der Temoeratur-Linie
+  // wird als mousover aufgerufen beim Ziehen der Temperatur-Linie
   function doDragTemp(e)
   {
     var xxx = $(currentLine).offset();
@@ -78,19 +100,18 @@ function Diagramm(id_)
     
     currentLine.setAttribute("y2", xxx.top);
     currentLine.setAttribute("y1", xxx.top);
-    var idx = parseInt(currentLine.getAttribute("ref"), 10);
-    va[idx].temp = (xxx.top + svg_height) / 5;
-    if (vao[idx].c1) vao[idx].c1.setAttribute("cy", xxx.top);
-    if (vao[idx].timeLine) 
+    var tp = currentLine.ref;
+    tp.temperatur = (xxx.top + svg_height) / 5;
+    if (tp.circleStart) tp.circleStart.setAttribute("cy", xxx.top);
+    if (tp.timeLine) 
     {
-      hulpe.text(vao[idx].timeLine.getAttribute("y1"));
-      vao[idx].timeLine.setAttribute("y1", vao[idx].timeLine.getAttribute("y1")*1 - delta);
+      tp.timeLine.setAttribute("y1", tp.timeLine.getAttribute("y1")*1 - delta);
     }
-    if (idx > 0)
+    if (tp.prev)
     {
-      var e = vao[idx-1];
+      var e = tp.prev;
       if (e.timeLine)  e.timeLine.setAttribute("y2", e.timeLine.getAttribute("y2")*1 - delta);
-      if (e.c2)        e.c2.setAttribute("cy", xxx.top);
+      if (e.circleEnd) e.circleEnd.setAttribute("cy", xxx.top);
     }
   }
 
@@ -119,20 +140,22 @@ function Diagramm(id_)
       return;
     }
     
-    var idx = parseInt(currentLine.getAttribute("ref"), 10);
-    if (idx == 0)
+    var tp = currentLine.ref;
+    if (tp.prev)
+    {
+      var t = parseInt(tp.prev.timeLine.getAttribute("x1"), 10);
+      if (xxx.left <= t + slot_size) return;
+    }
+    else
     {
       // Ziel ist, daß mindestens ein Slot am Beginn stehen bleibt
       if (xxx.left <= slot_size) return;
     }
-    else
-    {
-      if (xxx.left <= parseInt(vao[idx-1].timeLine.getAttribute("x1"), 10) + slot_size) return;
-    }
     
-    if (vao[idx+1].timeLine)
+    if (tp.next.timeLine)
     {
-      if (xxx.left >= parseInt(vao[idx+1].timeLine.getAttribute("x1"), 10) - slot_size) return;
+      var t = parseInt(tp.next.timeLine.getAttribute("x1"), 10);
+      if (xxx.left >= t - slot_size) return;
     }
     else
     {
@@ -143,12 +166,11 @@ function Diagramm(id_)
     
     currentLine.setAttribute("x2", xxx.left);
     currentLine.setAttribute("x1", xxx.left);
-    va[idx].ts = xxx.left;
-    if (vao[idx].c1)       vao[idx].c1.setAttribute("cx", xxx.left);
-    if (vao[idx].c2)       vao[idx].c2.setAttribute("cx", xxx.left);
-    if (vao[idx].timeLine) vao[idx].tempLine.setAttribute("x2", parseInt(vao[idx].tempLine.getAttribute("x2"), 10) - delta);
-    var e = vao[idx+1];
-    if (e.tempLine)        e.tempLine.setAttribute("x1", parseInt(e.tempLine.getAttribute("x1"), 10) - delta);
+    tp.zeit = xxx.left;
+    if (tp.circleStart)         tp.circleStart.setAttribute("cx", xxx.left);
+    if (tp.circleEnd)           tp.circleEnd.setAttribute("cx", xxx.left);
+    if (tp.timeLine)            tp.temperaturLine.setAttribute("x2", parseInt(tp.temperaturLine.getAttribute("x2"), 10) - delta);
+    if (tp.next.temperaturLine) tp.next.temperaturLine.setAttribute("x1", parseInt(tp.next.temperaturLine.getAttribute("x1"), 10) - delta);
   }
 
   // private eventhandler
@@ -169,41 +191,74 @@ function Diagramm(id_)
     help.html("end dragging at");
   }
 
+  // private function to build the internal list
+  function build_liste()
+  {
+    // Entlang des vectors die Linien zeichnen.
+    var tp = tpListe; // erstes Element holen
+    for (tp = tpListe; tp != null; tp = tp.next)
+    {
+      var x=tp.zeit / 2; // zeit
+      var y=svg_height - tp.temperatur * 5; // Temperatur in Px von canvas.height herunter
+      var nx=svg_width;
+      var ny;
+      if (tp.next)
+      {
+        nx = tp.next.zeit / 2; // zeit
+        ny = svg_height - tp.next.temperatur * 5; // Temperatur in Px von canvas.height herunter
+      }
+      
+      // 1. Waagerecht - die Temperatur-Linie
+      addTempLine(tp, x, y, nx-x);
+
+      // 1. Senkrecht - die Zeit-Linie
+      addTimeLine(tp, nx, y, ny-y); 
+    }
+  }
+
   // public function zum Setzen der Daten
   this.setData = function(data) 
   {
-    va = jQuery.parseJSON(data);
+    // zuerst das Ganze parsen
+    var va = jQuery.parseJSON(data);
+    
+    // dann daraus die verkettete Liste aufbauen
+    var idx;
+    var root = new TemperaturPoint(); // leeres Element als Anfang
+    var curr = root;
+    for (idx in va)
+    {
+      var neu = new TemperaturPoint();
+      neu.zeit = va[idx].ts;
+      neu.temperatur = va[idx].temp;
+      curr.next = neu;
+      neu.prev = curr;
+      curr = neu;
+    }
+    
+    // als Wurzel dient dann das erste erzeugte Element
+    tpListe = root.next;
+    // Und das hat dann auch keinen Vorgänger mehr
+    tpListe.prev = null;
+    
+    build_liste();
   }
   
   // public function zum Zeichnen des Diagramms
   this.draw = function()
   {
     // Entlang des vectors die Linien zeichnen.
-    var x=0; // zeit
-    var y=0; // Temperatur in Px von canvas.height herunter
-    var idx;    
-    for (idx in va)
+    var tp = tpListe; // erstes Element holen
+    for (tp = tpListe; tp != null; tp = tp.next)
     {
-      var e = va[idx]
-      var nx=e.ts/2;	
-      var ny=svg_height - e.temp*5;
-      if (nx != 0)
-      {
-        vao[idx-1] = new Object();
-        // 1. Waagerecht - die Temperatur-Linie
-        addTempLine(idx-1, x, y, nx-x);
-
-        // 1. Senkrecht - die Zeit-Linie
-        addTimeLine(idx-1, nx, y, ny-y); 
-      }
-
-      x=nx;
-      y=ny;
+      if (tp.temperaturLine) svga.append(tp.temperaturLine);
+      if (tp.timeLine)       svga.append(tp.timeLine);
     }
-  
-    // zum schluss die letzte waagerechte Temperatur-Linie
-    vao[idx] = new Object();
-    addTempLine(idx, x, y, svg_width-x);
+    for (tp = tpListe; tp != null; tp = tp.next)
+    {
+      if (tp.circleStart) svga.append(tp.circleStart);
+      if (tp.circleEnd)   svga.append(tp.circleEnd);
+    }
   }
 
   function init()
@@ -216,12 +271,12 @@ function Diagramm(id_)
 
     // Hintergrund malen
     // TODO: Der Hintergrund hat jetzt keinen Platz für Beschriftung!!!
-    svga.append(mRect("ground", 0, 0, svg_width, svg_height, "rgb(200,200,200)"));
+    svga.append(mRect(0, 0, svg_width, svg_height, "rgb(200,200,200)"));
 
     // 1000/24 == 41,666
     // Koordinatensystem zeichnen
-    svga.append(mwLine("koord_h", 0, svg_height, svg_width, "rgb(200,0,0)", 3));
-    svga.append(msLine("koord_v", 0, 0, svg_height, "rgb(200,0,0)", 3));
+    svga.append(mwLine(0, svg_height, svg_width, "rgb(200,0,0)", 3));
+    svga.append(msLine(0, 0, svg_height, "rgb(200,0,0)", 3));
   }
   
   init();
