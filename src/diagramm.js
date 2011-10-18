@@ -24,6 +24,7 @@ function Diagramm(id_)
   // Sie bilden den Rumpf der Liste
   tpStart.next = tpEnd;
   tpEnd.prev = tpStart;
+  tpEnd.px = svg_width;
   
   // diverse Konstanten
   var px_minutes_per_px = 2; // nur alle 2 Minuten ein Pixel (sonst wirds zu breit)
@@ -46,11 +47,30 @@ function Diagramm(id_)
     this.zeit = time;
     this.temperatur = temp;
     
+    // der Anfang dieses temperaturPoints in Pixeln
+    this.px = 0;
+    this.py = 0;
+    
     // public member für die Darstellung
     this.timeLine = null; // SvgLine senkrecht
     this.temperaturLine = null; // SvgLine waagerecht
     this.circleStart = null; // die beiden Murmeln am Anfang und Ende der TemperaturLinie
     this.circleEnd = null;
+    
+    // Verschiebe den Start des TemperaturPoint um den angegebenen Betrag
+    this.shiftStartTo = function(px)
+    {
+      this.px = px;
+      if (this.temperaturLine)
+      {
+        this.temperaturLine.setAttribute("x1", this.px);
+      }
+    }
+    
+    this.getEndPx = function()
+    {
+      return this.next.next.px;
+    }
     
     // fügt diesen TP hinter tp ein
     this.insertAfter = function(tp)
@@ -70,8 +90,8 @@ function Diagramm(id_)
     // erzeugt die nötigen svg-Objekte
     this.makeSvg = function()
     {
-      var x = this.zeit / px_minutes_per_px; // zeit
-      var y = svg_height - this.temperatur * px_per_grad; // Temperatur in Px von canvas.height herunter
+      this.px = this.zeit / px_minutes_per_px; // zeit
+      this.py = svg_height - this.temperatur * px_per_grad; // Temperatur in Px von canvas.height herunter
       var nx = svg_width;
       var ny;
       if (this.next.next)
@@ -81,16 +101,16 @@ function Diagramm(id_)
       }
         
       // 1. Waagerecht - die Temperatur-Linie
-      this.temperaturLine = mwLine(x, y, nx-x, "rgb(0,200,0)", 5);
+      this.temperaturLine = mwLine(this.px, this.py, nx-this.px, "rgb(0,200,0)", 5);
       this.temperaturLine.ref = this;
       
       if (this.next.next)
       {
         // 1. Senkrecht - die Zeit-Linie
-        this.timeLine = msLine(nx, y, ny-y, "rgb(0,200,0)", 5);
+        this.timeLine = msLine(nx, this.py, ny-this.py, "rgb(0,200,0)", 5);
         this.timeLine.ref = this;
 
-        this.circleStart = mCircle(nx, y, 6, "rgb(0,0,200)"); 
+        this.circleStart = mCircle(nx, this.py, 6, "rgb(0,0,200)"); 
         this.circleStart.ref = this;
 
         this.circleEnd = mCircle(nx, ny, 6, "rgb(0,0,200)"); 
@@ -160,22 +180,23 @@ function Diagramm(id_)
       return;
     }
     
-    var delta = currentLine.getAttribute("y1") - xxx.top;
-    
-    currentLine.setAttribute("y2", xxx.top);
-    currentLine.setAttribute("y1", xxx.top);
     var tp = currentLine.ref;
-    tp.temperatur = (xxx.top + svg_height) / px_per_grad;
-    if (tp.circleStart) tp.circleStart.setAttribute("cy", xxx.top);
+    var delta = tp.py - xxx.top;
+    
+    tp.py = xxx.top;
+    currentLine.setAttribute("y2", tp.py);
+    currentLine.setAttribute("y1", tp.py);
+    tp.temperatur = (tp.py + svg_height) / px_per_grad;
+    if (tp.circleStart) tp.circleStart.setAttribute("cy", tp.py);
     if (tp.timeLine) 
     {
-      tp.timeLine.setAttribute("y1", tp.timeLine.getAttribute("y1")*1 - delta);
+      tp.timeLine.setAttribute("y1", tp.py);
     }
     if (tp.prev)
     {
       var e = tp.prev;
-      if (e.timeLine)  e.timeLine.setAttribute("y2", e.timeLine.getAttribute("y2")*1 - delta);
-      if (e.circleEnd) e.circleEnd.setAttribute("cy", xxx.top);
+      if (e.timeLine)  e.timeLine.setAttribute("y2", tp.py);
+      if (e.circleEnd) e.circleEnd.setAttribute("cy", tp.py);
     }
   }
 
@@ -205,36 +226,26 @@ function Diagramm(id_)
     }
     
     var tp = currentLine.ref;
-    if (tp.prev.timeLine)
-    {
-      var t = parseInt(tp.prev.timeLine.getAttribute("x1"), 10);
-      if (xxx.left <= t + px_min_minutes) return;
-    }
-    else
-    {
-      // Ziel ist, daß mindestens ein Slot am Beginn stehen bleibt
-      if (xxx.left <= px_min_minutes) return;
-    }
     
-    if (tp.next.timeLine)
-    {
-      var t = parseInt(tp.next.timeLine.getAttribute("x1"), 10);
-      if (xxx.left >= t - px_min_minutes) return;
-    }
-    else
-    {
-      if (xxx.left >= svg_width - px_min_minutes) return;
-    }
+    // Das Ende darf nicht vor den eigenen Anfang gelangen
+    if (xxx.left <= tp.px + px_min_minutes) return;
     
-    var delta = currentLine.getAttribute("x1") - xxx.left;
+    // Es darf auch nicht zu nahe an das Ende des nächsten TP kommen
+    var t = tp.getEndPx();
+    if (xxx.left >= t - px_min_minutes) return;
     
+    tp.zeit = xxx.left; // FIXME
+
     currentLine.setAttribute("x2", xxx.left);
     currentLine.setAttribute("x1", xxx.left);
-    tp.zeit = xxx.left;
+    
     if (tp.circleStart)         tp.circleStart.setAttribute("cx", xxx.left);
     if (tp.circleEnd)           tp.circleEnd.setAttribute("cx", xxx.left);
-    if (tp.timeLine)            tp.temperaturLine.setAttribute("x2", parseInt(tp.temperaturLine.getAttribute("x2"), 10) - delta);
-    if (tp.next.temperaturLine) tp.next.temperaturLine.setAttribute("x1", parseInt(tp.next.temperaturLine.getAttribute("x1"), 10) - delta);
+    if (tp.next.temperaturLine) 
+    {
+      tp.next.shiftStartTo(xxx.left);
+    }
+    if (tp.temperaturLine)      tp.temperaturLine.setAttribute("x2", tp.next.px);
   }
 
   // private eventhandler
