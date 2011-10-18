@@ -6,26 +6,6 @@ var help;
 var hulpe;
 
 /**
- * Klasse TemperaturPoint
- */
-function TemperaturPoint()
-{
-  // private member für die Verkettung der Liste
-  var prev;
-  var next;
-  
-  // public member für die Werte
-  this.zeit = 0;
-  this.temperatur = 0;
-  
-  // public member für die Darstellung
-  this.timeLine = null; // SvgLine senkrecht
-  this.temperaturLine = null; // SvgLine waagerecht
-  this.circleStart = null; // die beiden Murmeln am Anfang und Ende der TemperaturLinie
-  this.circleEnd = null;
-}
-
-/**
  * Klasse Diagramm.
  * Beinhaltet alle Funktionen und Daten für ein einzelnes Diagramm.
  */
@@ -39,7 +19,11 @@ function Diagramm(id_)
   var svg_width = 24*30; // die Breite des Diagramms
   var svg_height = 300;  // die Höhe des Diagramms
   var px_min_minutes = 5; // Nindestzeit in Pixeln
-  var tpListe;
+  var tpStart = new TemperaturPoint(); // Anfang der TemperaturPoint-Liste
+  var tpEnd = new TemperaturPoint(); // Anfang der TemperaturPoint-Liste
+  // Sie bilden den Rumpf der Liste
+  tpStart.next = tpEnd;
+  tpEnd.prev = tpStart;
   
   // diverse Konstanten
   var px_minutes_per_px = 2; // nur alle 2 Minuten ein Pixel (sonst wirds zu breit)
@@ -49,35 +33,72 @@ function Diagramm(id_)
   var px_temperatur_min = svg_height; // Pixelpos für minimale Temperatur
   var px_temperatur_max = 0; // Pixelpos für maximale Temperatur
 
-  // private Function for writing a line
-  function addTempLine(tp, x, y, len)
+  /**
+  * Klasse TemperaturPoint
+  */
+  function TemperaturPoint()
   {
-    var tl = mwLine(x, y, len, "rgb(0,200,0)", 5);
-    tl.ref = tp;
-    $(tl).bind("mousedown", startDragTemp);
-    $(tl).bind("dblclick", splitLine);
-    tp.temperaturLine = tl;
-  }
-
-  function addTimeLine(tp, x, y, len)
-  {
-    if (tp.next)
+    // private member für die Verkettung der Liste
+    var prev;
+    var next;
+    
+    // public member für die Werte
+    this.zeit = 0;
+    this.temperatur = 0;
+    
+    // public member für die Darstellung
+    this.timeLine = null; // SvgLine senkrecht
+    this.temperaturLine = null; // SvgLine waagerecht
+    this.circleStart = null; // die beiden Murmeln am Anfang und Ende der TemperaturLinie
+    this.circleEnd = null;
+    
+    // fügt diesen TP hinter tp ein
+    this.insertAfter = function(tp)
     {
-      tp.timeLine = msLine(x, y, len, "rgb(0,200,0)", 5);
-      tp.timeLine.ref = tp;
-      $(tp.timeLine).bind("mousedown", startDragTime);
+      this.next = tp.next;
+      tp.next = this;
+      this.prev = tp;
+      this.next.prev = this;
+    }
+    
+    // fügt diesen TP vor tp ein
+    this.insertBefore = function(tp)
+    {
+      this.insertAfter(tp.prev);
+    }
+    
+    // erzeugt die nötigen svg-Objekte
+    this.makeSvg = function()
+    {
+      var x = this.zeit / px_minutes_per_px; // zeit
+      var y = svg_height - this.temperatur * px_per_grad; // Temperatur in Px von canvas.height herunter
+      var nx = svg_width;
+      var ny;
+      if (this.next)
+      {
+        nx = this.next.zeit / px_minutes_per_px; // zeit
+        ny = svg_height - this.next.temperatur * px_per_grad; // Temperatur in Px von canvas.height herunter
+      }
+        
+      // 1. Waagerecht - die Temperatur-Linie
+      this.temperaturLine = mwLine(x, y, nx-x, "rgb(0,200,0)", 5);
+      this.temperaturLine.ref = this;
+      
+      if (this.next)
+      {
+        // 1. Senkrecht - die Zeit-Linie
+        this.timeLine = msLine(nx, y, ny-y, "rgb(0,200,0)", 5);
+        this.timeLine.ref = this;
 
-      tp.circleStart = mCircle(x, y, 6, "rgb(0,0,200)"); 
-      tp.circleStart.ref = tp;
-      $(tp.circleStart).bind("dblclick", deleteLeft);
+        this.circleStart = mCircle(nx, y, 6, "rgb(0,0,200)"); 
+        this.circleStart.ref = this;
 
-      tp.circleEnd = mCircle( x, y+len, 6, "rgb(0,0,200)"); 
-      tp.circleEnd.ref = tp;
-      $(tp.circleEnd).bind("dblclick", deleteRight);
-
+        this.circleEnd = mCircle(nx, ny, 6, "rgb(0,0,200)"); 
+        this.circleEnd.ref = this;
+      }
     }
   }
-  
+
   // private eventhandler
   // splittet eine Temperaturzeile
   function splitLine(e)
@@ -92,10 +113,6 @@ function Diagramm(id_)
     ntp.zeit = (e.pageX - col) * px_minutes_per_px;
     
     // Verketten
-    ntp.prev = ctp.prev;
-    ctp.prev = ntp;
-    ntp.next = ctp;
-    ntp.prev.next = ntp;
     
     // zeiten anpassen
     //ntp.prev.zeit -= px_min_minutes;
@@ -245,24 +262,10 @@ function Diagramm(id_)
   function build_liste()
   {
     // Entlang des vectors die Linien zeichnen.
-    var tp = tpListe; // erstes Element holen
-    for (tp = tpListe; tp != null; tp = tp.next)
+    var tp; // erstes Element holen
+    for (tp = tpStart.next; tp.next != null; tp = tp.next)
     {
-      var x=tp.zeit / px_minutes_per_px; // zeit
-      var y=svg_height - tp.temperatur * px_per_grad; // Temperatur in Px von canvas.height herunter
-      var nx=svg_width;
-      var ny;
-      if (tp.next)
-      {
-        nx = tp.next.zeit / px_minutes_per_px; // zeit
-        ny = svg_height - tp.next.temperatur * px_per_grad; // Temperatur in Px von canvas.height herunter
-      }
-      
-      // 1. Waagerecht - die Temperatur-Linie
-      addTempLine(tp, x, y, nx-x);
-
-      // 1. Senkrecht - die Zeit-Linie
-      addTimeLine(tp, nx, y, ny-y); 
+      tp.makeSvg();
     }
   }
 
@@ -274,22 +277,14 @@ function Diagramm(id_)
     
     // dann daraus die verkettete Liste aufbauen
     var idx;
-    var root = new TemperaturPoint(); // leeres Element als Anfang
-    var curr = root;
     for (idx in va)
     {
       var neu = new TemperaturPoint();
       neu.zeit = va[idx].ts;
       neu.temperatur = va[idx].temp;
-      curr.next = neu;
-      neu.prev = curr;
-      curr = neu;
+
+      neu.insertBefore(tpEnd);
     }
-    
-    // als Wurzel dient dann das erste erzeugte Element
-    tpListe = root.next;
-    // Und das hat dann auch keinen Vorgänger mehr
-    tpListe.prev = null;
     
     build_liste();
   }
@@ -298,16 +293,33 @@ function Diagramm(id_)
   this.draw = function()
   {
     // Entlang des vectors die Linien zeichnen.
-    var tp = tpListe; // erstes Element holen
-    for (tp = tpListe; tp != null; tp = tp.next)
+    var tp; // erstes Element holen
+    for (tp = tpStart.next; tp.next != null; tp = tp.next)
     {
-      if (tp.temperaturLine) svga.append(tp.temperaturLine);
-      if (tp.timeLine)       svga.append(tp.timeLine);
+      if (tp.temperaturLine)
+      {
+        svga.append(tp.temperaturLine);
+        $(tp.temperaturLine).bind("mousedown", startDragTemp);
+        $(tp.temperaturLine).bind("dblclick", splitLine);
+      }
+      if (tp.timeLine)
+      {
+        svga.append(tp.timeLine);
+        $(tp.timeLine).bind("mousedown", startDragTime);
+      }
     }
     for (tp = tpListe; tp != null; tp = tp.next)
     {
-      if (tp.circleStart) svga.append(tp.circleStart);
-      if (tp.circleEnd)   svga.append(tp.circleEnd);
+      if (tp.circleStart)
+      {
+        svga.append(tp.circleStart);
+        $(tp.circleStart).bind("dblclick", deleteLeft);
+      }
+      if (tp.circleEnd)
+      {
+        svga.append(tp.circleEnd);
+        $(tp.circleEnd).bind("dblclick", deleteRight);
+      }
     }
   }
 
