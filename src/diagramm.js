@@ -19,8 +19,8 @@ function Diagramm(id_)
   var svg_width = 24*30; // die Breite des Diagramms
   var svg_height = 300;  // die Höhe des Diagramms
   var px_min_minutes = 5; // Nindestzeit in Pixeln
-  var tpStart = new TemperaturPoint(); // Anfang der TemperaturPoint-Liste
-  var tpEnd = new TemperaturPoint(); // Anfang der TemperaturPoint-Liste
+  var tpStart = new TemperaturPoint(0, null); // Anfang der TemperaturPoint-Liste
+  var tpEnd = new TemperaturPoint(24*60, null); // Anfang der TemperaturPoint-Liste
   // Sie bilden den Rumpf der Liste
   tpStart.next = tpEnd;
   tpEnd.prev = tpStart;
@@ -36,15 +36,15 @@ function Diagramm(id_)
   /**
   * Klasse TemperaturPoint
   */
-  function TemperaturPoint()
+  function TemperaturPoint(time, temp)
   {
     // private member für die Verkettung der Liste
     var prev;
     var next;
     
     // public member für die Werte
-    this.zeit = 0;
-    this.temperatur = 0;
+    this.zeit = time;
+    this.temperatur = temp;
     
     // public member für die Darstellung
     this.timeLine = null; // SvgLine senkrecht
@@ -74,7 +74,7 @@ function Diagramm(id_)
       var y = svg_height - this.temperatur * px_per_grad; // Temperatur in Px von canvas.height herunter
       var nx = svg_width;
       var ny;
-      if (this.next)
+      if (this.next.next)
       {
         nx = this.next.zeit / px_minutes_per_px; // zeit
         ny = svg_height - this.next.temperatur * px_per_grad; // Temperatur in Px von canvas.height herunter
@@ -84,7 +84,7 @@ function Diagramm(id_)
       this.temperaturLine = mwLine(x, y, nx-x, "rgb(0,200,0)", 5);
       this.temperaturLine.ref = this;
       
-      if (this.next)
+      if (this.next.next)
       {
         // 1. Senkrecht - die Zeit-Linie
         this.timeLine = msLine(nx, y, ny-y, "rgb(0,200,0)", 5);
@@ -106,11 +106,8 @@ function Diagramm(id_)
     alert("split line");
     var cl = e.currentTarget;
     var ctp = cl.ref;
-    var ntp = new TemperaturPoint();
-    
-    // Werte setzen
-    ntp.temperatur = ctp.temperatur;
-    ntp.zeit = (e.pageX - col) * px_minutes_per_px;
+    var ntp = new TemperaturPoint(ctp.temperatur,
+                                  (e.pageX - col) * px_minutes_per_px);
     
     // Verketten
     
@@ -208,7 +205,7 @@ function Diagramm(id_)
     }
     
     var tp = currentLine.ref;
-    if (tp.prev)
+    if (tp.prev.timeLine)
     {
       var t = parseInt(tp.prev.timeLine.getAttribute("x1"), 10);
       if (xxx.left <= t + px_min_minutes) return;
@@ -279,10 +276,7 @@ function Diagramm(id_)
     var idx;
     for (idx in va)
     {
-      var neu = new TemperaturPoint();
-      neu.zeit = va[idx].ts;
-      neu.temperatur = va[idx].temp;
-
+      var neu = new TemperaturPoint(va[idx].ts, va[idx].temp);
       neu.insertBefore(tpEnd);
     }
     
@@ -308,7 +302,7 @@ function Diagramm(id_)
         $(tp.timeLine).bind("mousedown", startDragTime);
       }
     }
-    for (tp = tpListe; tp != null; tp = tp.next)
+    for (tp = tpStart.next; tp.next != null; tp = tp.next)
     {
       if (tp.circleStart)
       {
