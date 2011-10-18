@@ -57,7 +57,7 @@ function Diagramm(id_)
     this.circleStart = null; // die beiden Murmeln am Anfang und Ende der TemperaturLinie
     this.circleEnd = null;
     
-    // Verschiebe den Start des TemperaturPoint um den angegebenen Betrag
+    // Verschiebe den Start des TemperaturPoint an den angegebenen Punkt
     this.shiftStartTo = function(px)
     {
       this.px = px;
@@ -65,6 +65,18 @@ function Diagramm(id_)
       {
         this.temperaturLine.setAttribute("x1", this.px);
       }
+    }
+    
+    // Setze das Ende des TemperaturPoint neu
+    this.adjustEnd = function()
+    {
+      var nx = this.next.px;
+      this.timeLine.setAttribute("x2", nx);
+      this.timeLine.setAttribute("x1", nx);
+    
+      if (this.circleStart)    this.circleStart.setAttribute("cx", nx);
+      if (this.circleEnd)      this.circleEnd.setAttribute("cx", nx);
+      if (this.temperaturLine) this.temperaturLine.setAttribute("x2", nx);
     }
     
     this.getEndPx = function()
@@ -233,19 +245,12 @@ function Diagramm(id_)
     // Es darf auch nicht zu nahe an das Ende des nächsten TP kommen
     var t = tp.getEndPx();
     if (xxx.left >= t - px_min_minutes) return;
-    
-    tp.zeit = xxx.left; // FIXME
 
-    currentLine.setAttribute("x2", xxx.left);
-    currentLine.setAttribute("x1", xxx.left);
+    // den Nachfolger über seine neue Startposition informieren
+    tp.next.shiftStartTo(xxx.left);
     
-    if (tp.circleStart)         tp.circleStart.setAttribute("cx", xxx.left);
-    if (tp.circleEnd)           tp.circleEnd.setAttribute("cx", xxx.left);
-    if (tp.next.temperaturLine) 
-    {
-      tp.next.shiftStartTo(xxx.left);
-    }
-    if (tp.temperaturLine)      tp.temperaturLine.setAttribute("x2", tp.next.px);
+    // SVG-Elemente nachziehen
+    tp.adjustEnd();
   }
 
   // private eventhandler
