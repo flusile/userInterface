@@ -35,8 +35,16 @@ function Diagramm(id_)
   var px_temperatur_max = 0; // Pixelpos für maximale Temperatur
 
   /**
-  * Klasse TemperaturPoint
-  */
+   * Klasse TemperaturPoint
+   * Ein TP enthält alle Informationen zu einem Eintrag.
+   * Er ist als doppelt verkettete Liste aufgebaut, um jederzeit neue Elemente einfügen zu können.
+   * Diese Liste hat ein leeres Anfangs- und ein leeres End-Element.
+   * Ein TP enthält auch die SVG-Elemente, die damit zusammenhängen:
+   * - die Temperatur-Linie 
+   * - sofern nicht das erste Element:
+   *   - die Zeit-Linie am Beginn der Temperaturlinie
+   *   - die Lösch-Kreise
+   */
   function TemperaturPoint(time, temp)
   {
     // private member für die Verkettung der Liste
@@ -44,17 +52,18 @@ function Diagramm(id_)
     var next;
     
     // public member für die Werte
+	// TODO: Monitore, um zeit/px und Temperatur/py synchron zu setzen
     this.zeit = time;
     this.temperatur = temp;
     
-    // der Anfang dieses temperaturPoints in Pixeln
-    this.px = 0;
-    this.py = 0;
+    // der Anfang dieses TemperaturPoints in Pixeln
+    this.px = this.zeit / px_minutes_per_px; // zeit
+    this.py = svg_height - this.temperatur * px_per_grad; // Temperatur in Px von canvas.height herunter
     
-    // public member für die Darstellung
+    // public SVG-Objekte  für die Darstellung
     this.timeLine = null; // SvgLine senkrecht
     this.temperaturLine = null; // SvgLine waagerecht
-    this.circleStart = null; // die beiden Murmeln am Anfang und Ende der TemperaturLinie
+    this.circleStart = null; // die beiden Murmeln am Anfang und Ende der TimeLine
     this.circleEnd = null;
     
     // Verschiebe den Start des TemperaturPoint an den angegebenen Punkt
@@ -65,23 +74,32 @@ function Diagramm(id_)
       {
         this.temperaturLine.setAttribute("x1", this.px);
       }
+
+	  if (this.timeLine)
+	  {
+		this.timeLine.setAttribute("x1", this.px);
+		this.timeLine.setAttribute("x2", this.px);
+	  }
+    
+      if (this.circleStart)    this.circleStart.setAttribute("cx", this.px);
+      if (this.circleEnd)      this.circleEnd.setAttribute("cx", this.px);
+      if (this.temperaturLine) this.temperaturLine.setAttribute("x1", this.px);
     }
     
     // Setze das Ende des TemperaturPoint neu
+	// Das wird anhand des folgenden TP gemacht
     this.adjustEnd = function()
     {
       var nx = this.next.px;
-      this.timeLine.setAttribute("x2", nx);
-      this.timeLine.setAttribute("x1", nx);
-    
-      if (this.circleStart)    this.circleStart.setAttribute("cx", nx);
-      if (this.circleEnd)      this.circleEnd.setAttribute("cx", nx);
       if (this.temperaturLine) this.temperaturLine.setAttribute("x2", nx);
     }
     
+	// Gibt unser Ende in Px zurück
     this.getEndPx = function()
     {
-      return this.next.next.px;
+	  // Unser Ende ist der Anfang unseres Nachfolgers
+	  if (this.next)  return this.next.px;
+	  return 0;
     }
     
     // fügt diesen TP hinter tp ein
@@ -99,33 +117,39 @@ function Diagramm(id_)
       this.insertAfter(tp.prev);
     }
     
+	// entfernt den TP aus der Liste
+	this.removeFromList = function()
+	{
+	  this.prev.next = this.next;
+	  this.next.prev = this.prev;
+	  this.next = this.prev = null;
+	}
+	
     // erzeugt die nötigen svg-Objekte
     this.makeSvg = function()
     {
-      this.px = this.zeit / px_minutes_per_px; // zeit
-      this.py = svg_height - this.temperatur * px_per_grad; // Temperatur in Px von canvas.height herunter
-      var nx = svg_width;
-      var ny;
-      if (this.next.next)
-      {
-        nx = this.next.zeit / px_minutes_per_px; // zeit
-        ny = svg_height - this.next.temperatur * px_per_grad; // Temperatur in Px von canvas.height herunter
-      }
+	  // px und py markieren den Anfang unserer TemperaturLinie und das Ende unserer Zeitlinie
+	  // nx markiert das Ende unserer TemperaturLinie
+      var nx = this.getEndPx();
         
       // 1. Waagerecht - die Temperatur-Linie
       this.temperaturLine = mwLine(this.px, this.py, nx-this.px, "rgb(0,200,0)", 5);
       this.temperaturLine.ref = this;
       
-      if (this.next.next)
+	  // Brauchen wir auch die ZeitLinie?
+      if (this.prev.prev)
       {
+		// ny markiert den Anfang unserer Zeitlinie
+		var ny = this.prev.py;
+		
         // 1. Senkrecht - die Zeit-Linie
-        this.timeLine = msLine(nx, this.py, ny-this.py, "rgb(0,200,0)", 5);
+        this.timeLine = msLine(this.px, this.py, ny-this.py, "rgb(0,200,0)", 5);
         this.timeLine.ref = this;
 
-        this.circleStart = mCircle(nx, this.py, 6, "rgb(0,0,200)"); 
+        this.circleStart = mCircle(this.px, this.py, 6, "rgb(0,0,200)"); 
         this.circleStart.ref = this;
 
-        this.circleEnd = mCircle(nx, ny, 6, "rgb(0,0,200)"); 
+        this.circleEnd = mCircle(this.px, ny, 6, "rgb(0,0,200)"); 
         this.circleEnd.ref = this;
       }
     }
@@ -189,7 +213,7 @@ function Diagramm(id_)
     // aus dem Digramm raus soll es nicht laufen
     if (xxx.top > svg_height)
     {
-      return;
+      xxx.top = svg_height;
     }
     
     var tp = currentLine.ref;
@@ -199,14 +223,14 @@ function Diagramm(id_)
     currentLine.setAttribute("y2", tp.py);
     currentLine.setAttribute("y1", tp.py);
     tp.temperatur = (tp.py + svg_height) / px_per_grad;
-    if (tp.circleStart) tp.circleStart.setAttribute("cy", tp.py);
     if (tp.timeLine) 
     {
+	  tp.circleStart.setAttribute("cy", tp.py);
       tp.timeLine.setAttribute("y1", tp.py);
     }
-    if (tp.prev)
+    if (tp.next)
     {
-      var e = tp.prev;
+      var e = tp.next;
       if (e.timeLine)  e.timeLine.setAttribute("y2", tp.py);
       if (e.circleEnd) e.circleEnd.setAttribute("cy", tp.py);
     }
@@ -234,23 +258,23 @@ function Diagramm(id_)
     // aus dem Digramm raus soll es nicht laufen
     if (xxx.left > svg_width)
     {
-      return;
+      xxx.left = svg_width;
     }
     
     var tp = currentLine.ref;
     
-    // Das Ende darf nicht vor den eigenen Anfang gelangen
-    if (xxx.left <= tp.px + px_min_minutes) return;
+    // Der Anfang darf nicht vor den Anfang des Vorgängers gelangen
+    if (xxx.left <= tp.prev.px + px_min_minutes) xxx.left = tp.prev.px + px_min_minutes;
     
     // Es darf auch nicht zu nahe an das Ende des nächsten TP kommen
     var t = tp.getEndPx();
-    if (xxx.left >= t - px_min_minutes) return;
+    if (xxx.left >= t - px_min_minutes) xxx.left = t - px_min_minutes;
 
     // den Nachfolger über seine neue Startposition informieren
-    tp.next.shiftStartTo(xxx.left);
+    tp.shiftStartTo(xxx.left);
     
     // SVG-Elemente nachziehen
-    tp.adjustEnd();
+    tp.prev.adjustEnd();
   }
 
   // private eventhandler
