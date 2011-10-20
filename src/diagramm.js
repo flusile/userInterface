@@ -144,8 +144,24 @@ function Diagramm(id_)
       this.prev.next = this.next;
       this.next.prev = this.prev;
       this.next = this.prev = null;
+      
+      // removing an SVG-Element
+      this.timeLine.parentNode.removeChild(this.timeLine);
+      this.temperaturLine.parentNode.removeChild(this.temperaturLine);
+      this.circleStart.parentNode.removeChild(this.circleStart);
+      this.circleEnd.parentNode.removeChild(this.circleEnd);
+      // analog replaceChild(new, old);
     }
 	
+    // bringt ie Kreise wieder nach vorn
+    this.bringCirclesToFront = function(svga)
+    {
+      this.circleStart.parentNode.removeChild(this.circleStart);
+      svga.append(this.circleStart);
+      this.circleEnd.parentNode.removeChild(this.circleEnd);
+      svga.append(this.circleEnd);
+    }
+    
     // erzeugt die nötigen svg-Objekte
     this.makeSvg = function()
     {
@@ -199,10 +215,12 @@ function Diagramm(id_)
     ntp.makeSvg();
     
     // Anzeigen
+    //svga.append(ntp.temperaturLine);
     svga.append(ntp.temperaturLine);
+    ntp.next.bringCirclesToFront(svga);
     $(ntp.temperaturLine).bind("mousedown", startDragTemp);
     $(ntp.temperaturLine).bind("dblclick", splitLine);
-    svga.append(ntp.timeLine);
+    svga.append(ntp.timeLine); 
     $(ntp.timeLine).bind("mousedown", startDragTime);
     svga.append(ntp.circleStart);
     $(ntp.circleStart).bind("dblclick", deleteLeft);
@@ -215,6 +233,12 @@ function Diagramm(id_)
   function deleteLeft(e)
   {
     alert("deleteLeft");
+    var cl = e.currentTarget;
+    var tp = cl.ref;
+    var prev = tp.prev;
+    tp.removeFromList();
+    prev.adjustEnd();
+    prev.next.bringCirclesToFront(svga);
   }
   
   // private eventhandler
@@ -222,6 +246,9 @@ function Diagramm(id_)
   function deleteRight(e)
   {
     alert("deleteRight");
+    var cl = e.currentTarget;
+    var tp = cl.ref;
+    tp.removeFromList();
   }
   
   // justiert den Offset der Zeichenfläche auf ganze Pixel und speichert die Werte für die spätere Verwendung
