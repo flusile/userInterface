@@ -67,13 +67,13 @@ function Diagramm(id_)
     
     // public member für die Werte
     // TODO: Monitore, um zeit/px und Temperatur/py synchron zu setzen
-    if (iart = "T")
+    if (iart == "T")
     {
       this.zeit = time;
       this.temperatur = temp;
       this.toKoord();      
     }
-    else if (iart = "X")
+    else if (iart == "X")
     {
       this.px = time;
       this.py = temp;
@@ -182,8 +182,12 @@ function Diagramm(id_)
   {
     alert("split line");
     var cl = e.currentTarget;
+    var xxx = $(cl).offset();
+    xxx.left = e.pageX - col;
+    kx.html(xxx.left);
+    ky.html(xxx.top);
     var ctp = cl.ref;
-    var ntp = new TemperaturPoint("X", ctp.px, ctp.py);
+    var ntp = new TemperaturPoint("X", xxx.left, ctp.py);
     
     // Verketten
     ntp.insertAfter(ctp);
