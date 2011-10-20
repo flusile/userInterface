@@ -19,8 +19,8 @@ function Diagramm(id_)
   var svg_width = 24*30; // die Breite des Diagramms
   var svg_height = 300;  // die Höhe des Diagramms
   var px_min_minutes = 5; // Nindestzeit in Pixeln
-  var tpStart = new TemperaturPoint(0, null); // Anfang der TemperaturPoint-Liste
-  var tpEnd = new TemperaturPoint(24*60, null); // Anfang der TemperaturPoint-Liste
+  var tpStart = new TemperaturPoint("T", 0, null); // Anfang der TemperaturPoint-Liste
+  var tpEnd = new TemperaturPoint("T", 24*60, null); // Anfang der TemperaturPoint-Liste
   // Sie bilden den Rumpf der Liste
   tpStart.next = tpEnd;
   tpEnd.prev = tpStart;
@@ -45,21 +45,41 @@ function Diagramm(id_)
    *   - die Zeit-Linie am Beginn der Temperaturlinie
    *   - die Lösch-Kreise
    */
-  function TemperaturPoint(time, temp)
+  function TemperaturPoint(iart, time, temp)
   {
     // private member für die Verkettung der Liste
     var prev;
     var next;
     
+    // berechnet Temperatur und Zeit aus den Koordinaten
+    this.fromKoord = function()
+    {
+      this.zeit = this.px * px_minutes_per_px; // zeit
+      this.temperatur = (this.py - svg_height) / px_per_grad;
+    }
+    
+    // berechnter Koordiaten aus Temperatur und Zeit
+    this.toKoord = function()
+    {
+      this.px = this.zeit / px_minutes_per_px; // zeit
+      this.py = svg_height - this.temperatur * px_per_grad; // Temperatur in Px von canvas.height herunter
+    }
+    
     // public member für die Werte
-	// TODO: Monitore, um zeit/px und Temperatur/py synchron zu setzen
-    this.zeit = time;
-    this.temperatur = temp;
-    
-    // der Anfang dieses TemperaturPoints in Pixeln
-    this.px = this.zeit / px_minutes_per_px; // zeit
-    this.py = svg_height - this.temperatur * px_per_grad; // Temperatur in Px von canvas.height herunter
-    
+    // TODO: Monitore, um zeit/px und Temperatur/py synchron zu setzen
+    if (iart = "T")
+    {
+      this.zeit = time;
+      this.temperatur = temp;
+      this.toKoord();      
+    }
+    else if (iart = "X")
+    {
+      this.px = time;
+      this.py = temp;
+      this.fromKoord();
+    }
+
     // public SVG-Objekte  für die Darstellung
     this.timeLine = null; // SvgLine senkrecht
     this.temperaturLine = null; // SvgLine waagerecht
@@ -70,16 +90,17 @@ function Diagramm(id_)
     this.shiftStartTo = function(px)
     {
       this.px = px;
+      this.fromKoord();
       if (this.temperaturLine)
       {
         this.temperaturLine.setAttribute("x1", this.px);
       }
 
-	  if (this.timeLine)
-	  {
-		this.timeLine.setAttribute("x1", this.px);
-		this.timeLine.setAttribute("x2", this.px);
-	  }
+      if (this.timeLine)
+      {
+        this.timeLine.setAttribute("x1", this.px);
+        this.timeLine.setAttribute("x2", this.px);
+      }
     
       if (this.circleStart)    this.circleStart.setAttribute("cx", this.px);
       if (this.circleEnd)      this.circleEnd.setAttribute("cx", this.px);
@@ -97,9 +118,9 @@ function Diagramm(id_)
 	// Gibt unser Ende in Px zurück
     this.getEndPx = function()
     {
-	  // Unser Ende ist der Anfang unseres Nachfolgers
-	  if (this.next)  return this.next.px;
-	  return 0;
+      // Unser Ende ist der Anfang unseres Nachfolgers
+      if (this.next)  return this.next.px;
+      return 0;
     }
     
     // fügt diesen TP hinter tp ein
@@ -117,30 +138,30 @@ function Diagramm(id_)
       this.insertAfter(tp.prev);
     }
     
-	// entfernt den TP aus der Liste
-	this.removeFromList = function()
-	{
-	  this.prev.next = this.next;
-	  this.next.prev = this.prev;
-	  this.next = this.prev = null;
-	}
+    // entfernt den TP aus der Liste
+    this.removeFromList = function()
+    {
+      this.prev.next = this.next;
+      this.next.prev = this.prev;
+      this.next = this.prev = null;
+    }
 	
     // erzeugt die nötigen svg-Objekte
     this.makeSvg = function()
     {
-	  // px und py markieren den Anfang unserer TemperaturLinie und das Ende unserer Zeitlinie
-	  // nx markiert das Ende unserer TemperaturLinie
+      // px und py markieren den Anfang unserer TemperaturLinie und das Ende unserer Zeitlinie
+      // nx markiert das Ende unserer TemperaturLinie
       var nx = this.getEndPx();
         
       // 1. Waagerecht - die Temperatur-Linie
       this.temperaturLine = mwLine(this.px, this.py, nx-this.px, "rgb(0,200,0)", 5);
       this.temperaturLine.ref = this;
       
-	  // Brauchen wir auch die ZeitLinie?
+      // Brauchen wir auch die ZeitLinie?
       if (this.prev.prev)
       {
-		// ny markiert den Anfang unserer Zeitlinie
-		var ny = this.prev.py;
+        // ny markiert den Anfang unserer Zeitlinie
+        var ny = this.prev.py;
 		
         // 1. Senkrecht - die Zeit-Linie
         this.timeLine = msLine(this.px, this.py, ny-this.py, "rgb(0,200,0)", 5);
@@ -162,16 +183,27 @@ function Diagramm(id_)
     alert("split line");
     var cl = e.currentTarget;
     var ctp = cl.ref;
-    var ntp = new TemperaturPoint(ctp.temperatur,
-                                  (e.pageX - col) * px_minutes_per_px);
+    var ntp = new TemperaturPoint("X", ctp.px, ctp.py);
     
     // Verketten
+    ntp.insertAfter(ctp);
     
-    // zeiten anpassen
-    //ntp.prev.zeit -= px_min_minutes;
+    // die alte Linie verkürzen
+    ctp.adjustEnd();
     
-    // neue Objekte erzeugen
+      // svg erstellen
+    ntp.makeSvg();
     
+    // Anzeigen
+    svga.append(ntp.temperaturLine);
+    $(ntp.temperaturLine).bind("mousedown", startDragTemp);
+    $(ntp.temperaturLine).bind("dblclick", splitLine);
+    svga.append(ntp.timeLine);
+    $(ntp.timeLine).bind("mousedown", startDragTime);
+    svga.append(ntp.circleStart);
+    $(ntp.circleStart).bind("dblclick", deleteLeft);
+    svga.append(ntp.circleEnd);
+    $(ntp.circleEnd).bind("dblclick", deleteRight);
   }
   
   // private eventhandler
@@ -220,12 +252,14 @@ function Diagramm(id_)
     var delta = tp.py - xxx.top;
     
     tp.py = xxx.top;
+    tp.fromKoord();
+
     currentLine.setAttribute("y2", tp.py);
     currentLine.setAttribute("y1", tp.py);
-    tp.temperatur = (tp.py + svg_height) / px_per_grad;
+    
     if (tp.timeLine) 
     {
-	  tp.circleStart.setAttribute("cy", tp.py);
+      tp.circleStart.setAttribute("cy", tp.py);
       tp.timeLine.setAttribute("y1", tp.py);
     }
     if (tp.next)
@@ -316,7 +350,7 @@ function Diagramm(id_)
     var idx;
     for (idx in va)
     {
-      var neu = new TemperaturPoint(va[idx].ts, va[idx].temp);
+      var neu = new TemperaturPoint("T", va[idx].ts, va[idx].temp);
       neu.insertBefore(tpEnd);
     }
     
@@ -395,5 +429,3 @@ $(function()
   
   dia.draw();
 })
-
-
