@@ -108,14 +108,21 @@ function Diagramm(id_)
     }
     
     // Setze das Ende des TemperaturPoint neu
-	// Das wird anhand des folgenden TP gemacht
+    // Das wird anhand des folgenden TP gemacht
     this.adjustEnd = function()
     {
       var nx = this.next.px;
       if (this.temperaturLine) this.temperaturLine.setAttribute("x2", nx);
     }
     
-	// Gibt unser Ende in Px zurück
+    this.adjustTime = function()
+    {
+      var ny = this.prev.py;
+      if (this.timeLine) this.timeLine.setAttribute("y2", ny);
+      if (this.circleEnd) this.circleEnd.setAttribute("cy", ny);
+    }
+
+    // Gibt unser Ende in Px zurück
     this.getEndPx = function()
     {
       // Unser Ende ist der Anfang unseres Nachfolgers
@@ -146,20 +153,29 @@ function Diagramm(id_)
       this.next = this.prev = null;
       
       // removing an SVG-Element
-      this.timeLine.parentNode.removeChild(this.timeLine);
       this.temperaturLine.parentNode.removeChild(this.temperaturLine);
-      this.circleStart.parentNode.removeChild(this.circleStart);
-      this.circleEnd.parentNode.removeChild(this.circleEnd);
+      if (this.timeLine)
+      {
+        this.timeLine.parentNode.removeChild(this.timeLine);
+        this.circleStart.parentNode.removeChild(this.circleStart);
+        this.circleEnd.parentNode.removeChild(this.circleEnd);
+      }
       // analog replaceChild(new, old);
     }
 	
     // bringt ie Kreise wieder nach vorn
     this.bringCirclesToFront = function(svga)
     {
-      this.circleStart.parentNode.removeChild(this.circleStart);
-      svga.append(this.circleStart);
-      this.circleEnd.parentNode.removeChild(this.circleEnd);
-      svga.append(this.circleEnd);
+      if (this.circleStart)
+      {
+        this.circleStart.parentNode.removeChild(this.circleStart);
+        svga.append(this.circleStart);
+      }
+      if (this.circleEnd)
+      {
+        this.circleEnd.parentNode.removeChild(this.circleEnd);
+        svga.append(this.circleEnd);
+      }
     }
     
     // erzeugt die nötigen svg-Objekte
@@ -223,9 +239,9 @@ function Diagramm(id_)
     svga.append(ntp.timeLine); 
     $(ntp.timeLine).bind("mousedown", startDragTime);
     svga.append(ntp.circleStart);
-    $(ntp.circleStart).bind("dblclick", deleteLeft);
+    $(ntp.circleStart).bind("dblclick", deleteRight);
     svga.append(ntp.circleEnd);
-    $(ntp.circleEnd).bind("dblclick", deleteRight);
+    $(ntp.circleEnd).bind("dblclick", deleteLeft);
   }
   
   // private eventhandler
@@ -234,11 +250,12 @@ function Diagramm(id_)
   {
     alert("deleteLeft");
     var cl = e.currentTarget;
-    var tp = cl.ref;
-    var prev = tp.prev;
+    var tp = cl.ref.prev;
+    var nx = tp.prev;
     tp.removeFromList();
-    prev.adjustEnd();
-    prev.next.bringCirclesToFront(svga);
+    nx.shiftStartTo(nx.prev.px);
+    nx.next.adjustTime();
+    nx.next.bringCirclesToFront(svga);
   }
   
   // private eventhandler
@@ -248,7 +265,11 @@ function Diagramm(id_)
     alert("deleteRight");
     var cl = e.currentTarget;
     var tp = cl.ref;
+    var prev = tp.prev;
     tp.removeFromList();
+    prev.adjustEnd();
+    prev.next.adjustTime();
+    prev.next.bringCirclesToFront(svga);
   }
   
   // justiert den Offset der Zeichenfläche auf ganze Pixel und speichert die Werte für die spätere Verwendung
@@ -412,12 +433,12 @@ function Diagramm(id_)
       if (tp.circleStart)
       {
         svga.append(tp.circleStart);
-        $(tp.circleStart).bind("dblclick", deleteLeft);
+        $(tp.circleStart).bind("dblclick", deleteRight);
       }
       if (tp.circleEnd)
       {
         svga.append(tp.circleEnd);
-        $(tp.circleEnd).bind("dblclick", deleteRight);
+        $(tp.circleEnd).bind("dblclick", deleteLeft);
       }
     }
   }
