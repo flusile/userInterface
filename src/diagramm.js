@@ -118,8 +118,18 @@ function Diagramm(id_)
     this.adjustTime = function()
     {
       var ny = this.prev.py;
-      if (this.timeLine) this.timeLine.setAttribute("y2", ny);
-      if (this.circleEnd) this.circleEnd.setAttribute("cy", ny);
+      if (this.prev.prev == null)
+      {
+        // Wir sind jetzt das neue erste Element!!!
+        this.timeLine.parentNode.removeChild(this.timeLine);
+        this.circleStart.parentNode.removeChild(this.circleStart);
+        this.circleEnd.parentNode.removeChild(this.circleEnd);
+      }
+      else
+      {
+        if (this.timeLine) this.timeLine.setAttribute("y2", ny);
+        if (this.circleEnd) this.circleEnd.setAttribute("cy", ny);
+      }
     }
 
     // Gibt unser Ende in Px zurück
@@ -251,11 +261,12 @@ function Diagramm(id_)
     alert("deleteLeft");
     var cl = e.currentTarget;
     var tp = cl.ref.prev;
-    var nx = tp.prev;
+    var prv = tp.prev;
+    var nxt = tp.next;
+    nxt.shiftStartTo(tp.px);
     tp.removeFromList();
-    nx.shiftStartTo(nx.prev.px);
-    nx.next.adjustTime();
-    nx.next.bringCirclesToFront(svga);
+    nxt.adjustTime();
+    nxt.bringCirclesToFront(svga);
   }
   
   // private eventhandler
@@ -477,7 +488,7 @@ $(function()
 
   var dia = new Diagramm("svg");
 
-  dia.setData('[{"ts":0,"temp":10},{"ts":600,"temp":30},{"ts":820,"temp":35},{"ts":1320,"temp":20}]');
+  dia.setData('[{"ts":0,"temp":40},{"ts":600,"temp":35},{"ts":820,"temp":30},{"ts":1320,"temp":20}]');
   
   dia.draw();
 })
