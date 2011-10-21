@@ -115,15 +115,20 @@ function Diagramm(id_)
       if (this.temperaturLine) this.temperaturLine.setAttribute("x2", nx);
     }
     
+    function killSvg(svgo)
+    {
+      svgo.parentNode.removeChild(svgo);
+    }
+    
     this.adjustTime = function()
     {
       var ny = this.prev.py;
       if (this.prev.prev == null)
       {
         // Wir sind jetzt das neue erste Element!!!
-        this.timeLine.parentNode.removeChild(this.timeLine);
-        this.circleStart.parentNode.removeChild(this.circleStart);
-        this.circleEnd.parentNode.removeChild(this.circleEnd);
+        killSvg(this.timeLine); this.timeLine = null;
+        killSvg(this.circleStart); this.circleStart = null;
+        killSvg(this.circleEnd); this.circleEnd = null;
       }
       else
       {
@@ -163,12 +168,12 @@ function Diagramm(id_)
       this.next = this.prev = null;
       
       // removing an SVG-Element
-      this.temperaturLine.parentNode.removeChild(this.temperaturLine);
+      killSvg(this.temperaturLine); this.temperaturLine = null;
       if (this.timeLine)
       {
-        this.timeLine.parentNode.removeChild(this.timeLine);
-        this.circleStart.parentNode.removeChild(this.circleStart);
-        this.circleEnd.parentNode.removeChild(this.circleEnd);
+        killSvg(this.timeLine); this.timeLine = null;
+        killSvg(this.circleStart); this.circleStart = null;
+        killSvg(this.circleEnd); this.circleEnd = null;
       }
       // analog replaceChild(new, old);
     }
