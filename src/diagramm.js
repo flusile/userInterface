@@ -55,7 +55,8 @@ function Diagramm(id_)
     this.fromKoord = function()
     {
       this.zeit = this.px * px_minutes_per_px; // zeit
-      this.temperatur = (this.py - svg_height) / px_per_grad;
+      this.temperatur = (svg_height - this.py) / px_per_grad;
+      hulpe.html("Zeit = " + this.zeit + ", Temp. = " + this.temperatur);
     }
     
     // berechnter Koordiaten aus Temperatur und Zeit
