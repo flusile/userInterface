@@ -57,46 +57,62 @@ function Diagramm(id_)
    {
       var px, py, fx, fy;
       
-      this.getPx = function() { return px; }
-      this.getPy = function() { return py; }
-      this.getZeit = function() { return fx; }
-      this.getTemperatur = function() { return fy; }
-//      hulpe.html("Zeit = " + this.zeit + ", Temp. = " + this.temperatur);
-      
-      this.setPx = function(kx)
+      function setPx(kx)
       {
         px = kx;
         fx = px * px_minutes_per_px; // zeit
       }
       
-      this.setPy = function(ky)
+      function setPy(ky)
       {
         py = ky;
         fy = (svg_height - py) / px_per_grad;
       }
       
-      this.setZeit = function(kx)
+      function setZeit(kx)
       {
         fx = kx;
         px = fx / px_minutes_per_px; // zeit
       }
       
-      this.setTemperatur = function(ky)
+      function setTemperatur(ky)
       {
         fy = ky;
         py = svg_height - fy * px_per_grad; // Temperatur in Px von canvas.height herunter
       }
+      
+      Object.defineProperty(this, "x", {
+        get: function() { return px; },
+        set: function(x) { setPx(x); }
+      });
+
+      Object.defineProperty(this, "y", {
+        get: function() { return py; },
+        set: function(x) { setPy(x); }
+      });
+
+      Object.defineProperty(this, "zeit", {
+        get: function() { return fx; },
+        set: function(x) { setZeit(x); }
+      });
+
+      Object.defineProperty(this, "temperatur", {
+        get: function() { return fy; },
+        set: function(x) { setTemperatur(x); }
+      });
 
       if (typ == "X")
       {
-         this.setPx(kx);
-         this.setPy(ky);
+        this.x = kx;
+        this.y = ky;
       }
       else
       {
-        this.setZeit(kx);
-        this.setTemperatur(ky);
+        this.zeit = kx;
+        this.temperatur = ky;
       }
+
+// hulpe.html("Zeit = " + fx + ", Temp. = " + fy);
     }
    
   /**
@@ -126,28 +142,28 @@ function Diagramm(id_)
     // Verschiebe den Start des TemperaturPoint an den angegebenen Punkt
     this.shiftStartTo = function(px)
     {
-      this.origin.setPx(px);
+      this.origin.x = px;
       if (this.temperaturLine)
       {
-        this.temperaturLine.setAttribute("x1", this.origin.getPx());
+        this.temperaturLine.setAttribute("x1", this.origin.x);
       }
 
       if (this.timeLine)
       {
-        this.timeLine.setAttribute("x1", this.origin.getPx());
-        this.timeLine.setAttribute("x2", this.origin.getPx());
+        this.timeLine.setAttribute("x1", this.origin.x);
+        this.timeLine.setAttribute("x2", this.origin.x);
       }
     
-      if (this.circleStart)    this.circleStart.setAttribute("cx", this.origin.getPx());
-      if (this.circleEnd)      this.circleEnd.setAttribute("cx", this.origin.getPx());
-      if (this.temperaturLine) this.temperaturLine.setAttribute("x1", this.origin.getPx());
+      if (this.circleStart)    this.circleStart.setAttribute("cx", this.origin.x);
+      if (this.circleEnd)      this.circleEnd.setAttribute("cx", this.origin.x);
+      if (this.temperaturLine) this.temperaturLine.setAttribute("x1", this.origin.x);
     }
     
     // Setze das Ende des TemperaturPoint neu
     // Das wird anhand des folgenden TP gemacht
     this.adjustEnd = function()
     {
-      var nx = this.next.origin.getPx();
+      var nx = this.next.origin.x;
       if (this.temperaturLine) this.temperaturLine.setAttribute("x2", nx);
     }
     
@@ -158,7 +174,7 @@ function Diagramm(id_)
     
     this.adjustTime = function()
     {
-      var ny = this.prev.origin.getPy();
+      var ny = this.prev.origin.y;
       if (this.prev.prev == null)
       {
         // Wir sind jetzt das neue erste Element!!!
@@ -177,7 +193,7 @@ function Diagramm(id_)
     this.getEndPx = function()
     {
       // Unser Ende ist der Anfang unseres Nachfolgers
-      if (this.next)  return this.next.origin.getPx();
+      if (this.next)  return this.next.origin.x;
       return 0;
     }
     
@@ -237,7 +253,7 @@ function Diagramm(id_)
       var nx = this.getEndPx();
         
       // 1. Waagerecht - die Temperatur-Linie
-      this.temperaturLine = mwLine(this.origin.getPx(), this.origin.getPy(), nx-this.origin.getPx(), 
+      this.temperaturLine = mwLine(this.origin.x, this.origin.y, nx-this.origin.x, 
                                    "rgb(0,200,0)", 5);
       this.temperaturLine.ref = this;
       
@@ -245,16 +261,16 @@ function Diagramm(id_)
       if (this.prev.prev)
       {
         // ny markiert den Anfang unserer Zeitlinie
-        var ny = this.prev.origin.getPy();
+        var ny = this.prev.origin.y;
 		
         // 1. Senkrecht - die Zeit-Linie
-        this.timeLine = msLine(this.origin.getPx(), this.origin.getPy(), ny-this.origin.getPy(), "rgb(0,200,0)", 5);
+        this.timeLine = msLine(this.origin.x, this.origin.y, ny-this.origin.y, "rgb(0,200,0)", 5);
         this.timeLine.ref = this;
 
-        this.circleStart = mCircle(this.origin.getPx(), this.origin.getPy(), 6, "rgb(0,0,200)"); 
+        this.circleStart = mCircle(this.origin.x, this.origin.y, 6, "rgb(0,0,200)"); 
         this.circleStart.ref = this;
 
-        this.circleEnd = mCircle(this.origin.getPx(), ny, 6, "rgb(0,0,200)"); 
+        this.circleEnd = mCircle(this.origin.x, ny, 6, "rgb(0,0,200)"); 
         this.circleEnd.ref = this;
       }
     }
@@ -271,7 +287,7 @@ function Diagramm(id_)
     kx.html(xxx.left);
     ky.html(xxx.top);
     var ctp = cl.ref;
-    var ntp = new TemperaturPoint("X", xxx.left, ctp.origin.getPy());
+    var ntp = new TemperaturPoint("X", xxx.left, ctp.origin.y);
     
     // Verketten
     ntp.insertAfter(ctp);
@@ -305,7 +321,7 @@ function Diagramm(id_)
     var tp = cl.ref.prev;
     var prv = tp.prev;
     var nxt = tp.next;
-    nxt.shiftStartTo(tp.origin.getPx());
+    nxt.shiftStartTo(tp.origin.x);
     tp.removeFromList();
     nxt.adjustTime();
     nxt.bringCirclesToFront(svga);
@@ -353,23 +369,23 @@ function Diagramm(id_)
     }
     
     var tp = currentLine.ref;
-    var delta = tp.origin.getPy() - xxx.top;
+    var delta = tp.origin.y - xxx.top;
     
-    tp.origin.setPy(xxx.top);
+    tp.origin.y = xxx.top;
 
-    currentLine.setAttribute("y2", tp.origin.getPy());
-    currentLine.setAttribute("y1", tp.origin.getPy());
+    currentLine.setAttribute("y2", tp.origin.y);
+    currentLine.setAttribute("y1", tp.origin.y);
     
     if (tp.timeLine) 
     {
-      tp.circleStart.setAttribute("cy", tp.origin.getPy());
-      tp.timeLine.setAttribute("y1", tp.origin.getPy());
+      tp.circleStart.setAttribute("cy", tp.origin.y);
+      tp.timeLine.setAttribute("y1", tp.origin.y);
     }
     if (tp.next)
     {
       var e = tp.next;
-      if (e.timeLine)  e.timeLine.setAttribute("y2", tp.origin.getPy());
-      if (e.circleEnd) e.circleEnd.setAttribute("cy", tp.origin.getPy());
+      if (e.timeLine)  e.timeLine.setAttribute("y2", tp.origin.y);
+      if (e.circleEnd) e.circleEnd.setAttribute("cy", tp.origin.y);
     }
   }
 
@@ -400,7 +416,7 @@ function Diagramm(id_)
     var tp = currentLine.ref;
     
     // Der Anfang darf nicht vor den Anfang des Vorgängers gelangen
-    if (xxx.left <= tp.prev.origin.getPx() + px_min_minutes) xxx.left = tp.prev.origin.getPx() + px_min_minutes;
+    if (xxx.left <= tp.prev.origin.x + px_min_minutes) xxx.left = tp.prev.origin.x + px_min_minutes;
     
     // Es darf auch nicht zu nahe an das Ende des nächsten TP kommen
     var t = tp.getEndPx();
