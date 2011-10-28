@@ -179,6 +179,8 @@ function Diagramm(id_)
       if (this.prev.prev == null)
       {
         // Wir sind jetzt das neue erste Element!!!
+        // TODO: Wenn timeLine ein Objekt ist, kann es per ref übergeben werden.
+        //       Dann kann es auch in killSvg auf null gesetzt werden. (oder zumindest dessen Inhalt)
         killSvg(this.timeLine); this.timeLine = null;
         killSvg(this.circleStart); this.circleStart = null;
         killSvg(this.circleEnd); this.circleEnd = null;
@@ -277,18 +279,26 @@ function Diagramm(id_)
     }
   }
 
+  function getMouseKoords(obj)
+  {
+    var xxx = $(obj).offset();
+    var loc = new Koord("X", 
+                        e.pageX - begin_svga_x, 
+                        e.pageY - begin_svga_y);
+    kx.html(loc.x);
+    ky.html(loc.y);
+    hulpe.html("Zeit " + loc.zeit + " Temp " + loc.temperatur);
+}
+  
   // private eventhandler
   // splittet eine Temperaturzeile
   function splitLine(e)
   {
     alert("split line");
     var cl = e.currentTarget;
-    var xxx = $(cl).offset();
-    xxx.left = e.pageX - begin_svga_x;
-    kx.html(xxx.left);
-    ky.html(xxx.top);
+    var xxx = getMouseKoords(cl);
     var ctp = cl.ref;
-    var ntp = new TemperaturPoint("X", xxx.left, ctp.origin.y);
+    var ntp = new TemperaturPoint("T", xxx.zeit, ctp.origin.temperatur);
     
     // Verketten
     ntp.insertAfter(ctp);
@@ -296,7 +306,7 @@ function Diagramm(id_)
     // die alte Linie verkürzen
     ctp.adjustEnd();
     
-      // svg erstellen
+    // svg erstellen
     ntp.makeSvg();
     
     // Anzeigen
