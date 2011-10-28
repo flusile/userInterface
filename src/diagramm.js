@@ -42,9 +42,9 @@ function Diagramm(id_)
   var px_min_minutes = 10; // Nindestzeit in Pixeln
   var px_minutes_per_px = 10; // nur alle 2 Minuten ein Pixel (sonst wirds zu breit)
   var px_per_grad = 1; // 5 Pixel pro °C
-  var px_zeit_0000 = 0; // Pixelposition für 00:00 Uhr
+  var px_zeit_0000 = offset_dia_x; // Pixelposition für 00:00 Uhr
   var px_zeit_2400 = px_zeit_0000 + (24*60 / px_minutes_per_px); // Pixelpos für 24:00
-  var px_temperatur_min = svg_height; // Pixelpos für minimale Temperatur
+  var px_temperatur_min = svg_height - offset_dia_y; // Pixelpos für minimale Temperatur
   var px_temperatur_max = 0; // Pixelpos für maximale Temperatur
 
   /**
@@ -503,12 +503,12 @@ function Diagramm(id_)
 
     // Hintergrund malen
     // TODO: Der Hintergrund hat jetzt keinen Platz für Beschriftung!!!
-    svga.append(mRect(0, 0, svg_width, svg_height, "rgb(200,200,200)"));
+    svga.append(mRect(px_zeit_0000, px_temperatur_min, px_zeit_2400-px_zeit_0000, px_temperatur_max - px_temperatur_min, "rgb(200,200,200)"));
 
     // 1000/24 == 41,666
     // Koordinatensystem zeichnen
-    svga.append(mwLine(0, svg_height, svg_width, "rgb(200,0,0)", 3));
-    svga.append(msLine(0, 0, svg_height, "rgb(200,0,0)", 3));
+    svga.append(mwLine(px_zeit_0000, px_temperatur_min, px_zeit_2400-px_zeit_0000, "rgb(200,0,0)", 3));
+    svga.append(msLine(px_zeit_0000, px_temperatur_min, px_temperatur_max - px_temperatur_min, "rgb(200,0,0)", 3));
   }
   
   init();
