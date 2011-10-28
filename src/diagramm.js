@@ -28,6 +28,16 @@ function Diagramm(id_)
   var svg_width = diagramm_width + offset_dia_x; // die Breite des Diagramms
   var svg_height = diagramm_height + offset_dia_y;  // die Höhe des Diagramms
   
+  // diverse Konstanten
+  var px_min_minutes = 10; // Nindestzeit in Pixeln
+  var px_minutes_per_px = 2; // nur alle 2 Minuten ein Pixel (sonst wirds zu breit)
+  var px_per_grad = 1; // 5 Pixel pro °C
+  var px_zeit_0000 = offset_dia_x; // Pixelposition für 00:00 Uhr
+  var px_zeit_2400 = px_zeit_0000 + (24*60 / px_minutes_per_px); // Pixelpos für 24:00
+  var px_temperatur_min = svg_height - offset_dia_y; // Pixelpos für minimale Temperatur
+  var px_temperatur_max = 0; // Pixelpos für maximale Temperatur
+
+  // Beginn des CTor-Codes
   var svga = $("#" + id); // die svg-area, auf der wir malen
   svga.attr("width", svg_width);
   svga.attr("height", svg_height);
@@ -38,15 +48,6 @@ function Diagramm(id_)
   tpStart.next = tpEnd;
   tpEnd.prev = tpStart;
   
-  // diverse Konstanten
-  var px_min_minutes = 10; // Nindestzeit in Pixeln
-  var px_minutes_per_px = 10; // nur alle 2 Minuten ein Pixel (sonst wirds zu breit)
-  var px_per_grad = 1; // 5 Pixel pro °C
-  var px_zeit_0000 = offset_dia_x; // Pixelposition für 00:00 Uhr
-  var px_zeit_2400 = px_zeit_0000 + (24*60 / px_minutes_per_px); // Pixelpos für 24:00
-  var px_temperatur_min = svg_height - offset_dia_y; // Pixelpos für minimale Temperatur
-  var px_temperatur_max = 0; // Pixelpos für maximale Temperatur
-
   /**
    * Klasse Koord
    * Dient zum Umrechnen von fachlichen Koordinaten (hier: Zeit und Temperatur)
