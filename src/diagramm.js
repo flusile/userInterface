@@ -279,7 +279,7 @@ function Diagramm(id_)
     }
   }
 
-  function getMouseKoords(obj)
+  function getMouseKoords(e, obj)
   {
     var xxx = $(obj).offset();
     var loc = new Koord("X", 
@@ -288,6 +288,7 @@ function Diagramm(id_)
     kx.html(loc.x);
     ky.html(loc.y);
     hulpe.html("Zeit " + loc.zeit + " Temp " + loc.temperatur);
+    return loc;
 }
   
   // private eventhandler
@@ -296,7 +297,7 @@ function Diagramm(id_)
   {
     alert("split line");
     var cl = e.currentTarget;
-    var xxx = getMouseKoords(cl);
+    var xxx = getMouseKoords(e, cl);
     var ctp = cl.ref;
     var ntp = new TemperaturPoint("T", xxx.zeit, ctp.origin.temperatur);
     
@@ -368,21 +369,18 @@ function Diagramm(id_)
   // wird als mousover aufgerufen beim Ziehen der Temperatur-Linie
   function doDragTemp(e)
   {
-    var xxx = $(currentLine).offset();
-    xxx.top = e.pageY - begin_svga_y;
-    kx.html(xxx.left);
-    ky.html(xxx.top);
+    var xxx = getMouseKoords(e, currentLine);
     
     // aus dem Digramm raus soll es nicht laufen
-    if (xxx.top > svg_height)
+    if (xxx.y > svg_height)
     {
-      xxx.top = svg_height;
+      xxx.y = svg_height;
     }
     
     var tp = currentLine.ref;
-    var delta = tp.origin.y - xxx.top;
+    var delta = tp.origin.y - xxx.y;
     
-    tp.origin.y = xxx.top;
+    tp.origin.y = xxx.y;
 
     currentLine.setAttribute("y2", tp.origin.y);
     currentLine.setAttribute("y1", tp.origin.y);
@@ -413,28 +411,25 @@ function Diagramm(id_)
   // wird als mousover aufgerufen beim Ziehen der Zeit-Linie
   function doDragTime(e)
   {
-    var xxx = $(currentLine).offset();
-    xxx.left = e.pageX - begin_svga_x;
-    kx.html(xxx.left);
-    ky.html(xxx.top);
+    var xxx = getMouseKoords(e, currentLine);
     
     // aus dem Digramm raus soll es nicht laufen
-    if (xxx.left > svg_width)
+    if (xxx.x > svg_width)
     {
-      xxx.left = svg_width;
+      xxx.x = svg_width;
     }
     
     var tp = currentLine.ref;
     
     // Der Anfang darf nicht vor den Anfang des Vorgängers gelangen
-    if (xxx.left <= tp.prev.origin.x + px_min_minutes) xxx.left = tp.prev.origin.x + px_min_minutes;
+    if (xxx.x <= tp.prev.origin.x + px_min_minutes) xxx.x = tp.prev.origin.x + px_min_minutes;
     
     // Es darf auch nicht zu nahe an das Ende des nächsten TP kommen
     var t = tp.getEndPx();
-    if (xxx.left >= t - px_min_minutes) xxx.left = t - px_min_minutes;
+    if (xxx.x >= t - px_min_minutes) xxx.x = t - px_min_minutes;
 
     // den Nachfolger über seine neue Startposition informieren
-    tp.shiftStartTo(xxx.left);
+    tp.shiftStartTo(xxx.x);
     
     // SVG-Elemente nachziehen
     tp.prev.adjustEnd();
