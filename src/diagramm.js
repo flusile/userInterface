@@ -23,19 +23,30 @@ function Diagramm(id_)
   // auf das Dokument
   var begin_diagram_x;
   var begin_diagram_y;
-  var diagramm_width = 24*30; // die Breite des Diagramms
-  var diagramm_height = 300;  // die Höhe des Diagramms
+  
+  // fachliche Grenzen für das Diagramm
+  var zeit_min = 0; // 00:00 ist der Anfang
+  var zeit_max = 24*60; // 24:00 ist das Ende
+  var temperatur_min = 0; // kälter als 0°C machen wir es nicht
+  var temperatur_max = 100; // heißer als 100°C machen wir es auch nicht
+
+  // Umrechnunskonstanten fachlich <--> Pixel
+  var minutes_per_px = 2; // nur alle 2 Minuten ein Pixel (sonst wirds zu breit)
+  var px_per_grad = 3; // Pixel pro °C
+
+  // abgeleitete Konstanten für die Diagramm-Abmessungen in px
+  var diagramm_width = (zeit_max - zeit_min) / minutes_per_px; // die Breite des Diagramms
+  var diagramm_height = (temperatur_max - temperatur_min) * px_per_grad;  // die Höhe des Diagramms
   var svg_width = diagramm_width + offset_dia_x; // die Breite des Diagramms
   var svg_height = diagramm_height + offset_dia_y;  // die Höhe des Diagramms
+
+  var px_zeit_0000 = offset_dia_x; // Pixelposition für 00:00 Uhr
+  var px_zeit_2400 = px_zeit_0000 + diagramm_width; // Pixelpos für 24:00
+  var px_temperatur_min = svg_height - offset_dia_y; // Pixelpos für minimale Temperatur
+  var px_temperatur_max = 0; // Pixelpos für maximale Temperatur
   
   // diverse Konstanten
   var px_min_minutes = 10; // Nindestzeit in Pixeln
-  var px_minutes_per_px = 2; // nur alle 2 Minuten ein Pixel (sonst wirds zu breit)
-  var px_per_grad = 5; // 5 Pixel pro °C
-  var px_zeit_0000 = offset_dia_x; // Pixelposition für 00:00 Uhr
-  var px_zeit_2400 = px_zeit_0000 + (24*60 / px_minutes_per_px); // Pixelpos für 24:00
-  var px_temperatur_min = svg_height - offset_dia_y; // Pixelpos für minimale Temperatur
-  var px_temperatur_max = 0; // Pixelpos für maximale Temperatur
 
   // Beginn des CTor-Codes
   var svga = $("#" + id); // die svg-area, auf der wir malen
@@ -62,13 +73,13 @@ function Diagramm(id_)
       function setPx(kx)
       {
         px = kx;
-        fx = (px - px_zeit_0000) * px_minutes_per_px; // zeit
+        fx = (px - px_zeit_0000) * minutes_per_px; // zeit
       }
       
       function setZeit(kx)
       {
         fx = kx;
-        px = px_zeit_0000 + fx / px_minutes_per_px; // zeit
+        px = px_zeit_0000 + fx / minutes_per_px; // zeit
       }
       
       function setPy(ky)
@@ -549,7 +560,7 @@ function Diagramm(id_)
     
     // °C
     zp.zeit = 0;
-    for (var i=0; i<40; i++)
+    for (var i=temperatur_min; i<=temperatur_max; i+=5)
     {
       zp.temperatur = i;
       svga.append(mwLine(zp.x-4, zp.y, 8, "rgb(200,0,0)", 1));
