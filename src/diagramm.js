@@ -31,7 +31,7 @@ function Diagramm(id_)
   // diverse Konstanten
   var px_min_minutes = 10; // Nindestzeit in Pixeln
   var px_minutes_per_px = 2; // nur alle 2 Minuten ein Pixel (sonst wirds zu breit)
-  var px_per_grad = 1; // 5 Pixel pro °C
+  var px_per_grad = 5; // 5 Pixel pro °C
   var px_zeit_0000 = offset_dia_x; // Pixelposition für 00:00 Uhr
   var px_zeit_2400 = px_zeit_0000 + (24*60 / px_minutes_per_px); // Pixelpos für 24:00
   var px_temperatur_min = svg_height - offset_dia_y; // Pixelpos für minimale Temperatur
@@ -53,6 +53,7 @@ function Diagramm(id_)
    * Dient zum Umrechnen von fachlichen Koordinaten (hier: Zeit und Temperatur)
    * in Pixel-Koordinaten für die svg-Area
    * und zurück.
+   * Berücksichtigt die Koordinatenverschiebung!
    */
    function Koord(typ, kx, ky)
    {
@@ -61,25 +62,25 @@ function Diagramm(id_)
       function setPx(kx)
       {
         px = kx;
-        fx = px * px_minutes_per_px; // zeit
-      }
-      
-      function setPy(ky)
-      {
-        py = ky;
-        fy = (svg_height - py) / px_per_grad;
+        fx = (px - px_zeit_0000) * px_minutes_per_px; // zeit
       }
       
       function setZeit(kx)
       {
         fx = kx;
-        px = fx / px_minutes_per_px; // zeit
+        px = px_zeit_0000 + fx / px_minutes_per_px; // zeit
+      }
+      
+      function setPy(ky)
+      {
+        py = ky;
+        fy = (px_temperatur_min - py) / px_per_grad;
       }
       
       function setTemperatur(ky)
       {
         fy = ky;
-        py = svg_height - fy * px_per_grad; // Temperatur in Px von canvas.height herunter
+        py = px_temperatur_min - fy * px_per_grad; // Temperatur in Px von canvas.height herunter
       }
       
       Object.defineProperty(this, "x", {
@@ -523,6 +524,8 @@ function Diagramm(id_)
     // MouseButtonUp zentral registrieren
     $(svga).bind("mouseup", stoppDrag);
 
+    // Hilfsvariable, um fachliche Koordinaten in Pixel umzurechnen
+    var zp = new Koord("T", 0, 0);
     // Hintergrund malen
     svga.append(mRect(px_zeit_0000, 
                       px_temperatur_max, 
@@ -534,6 +537,23 @@ function Diagramm(id_)
     // Koordinatensystem zeichnen
     svga.append(mwLine(px_zeit_0000, px_temperatur_min, px_zeit_2400-px_zeit_0000, "rgb(200,0,0)", 3));
     svga.append(msLine(px_zeit_0000, px_temperatur_min, px_temperatur_max - px_temperatur_min, "rgb(200,0,0)", 3));
+    
+    // Kleine Striche für die Sunden und die °C malen
+    // Stunden
+    zp.temperatur = 0;
+    for (var i=0; i<24; i++)
+    {
+      zp.zeit = i*60;
+      svga.append(msLine(zp.x, zp.y-4, 8, "rgb(200,0,0)", 1));
+    }
+    
+    // °C
+    zp.zeit = 0;
+    for (var i=0; i<40; i++)
+    {
+      zp.temperatur = i;
+      svga.append(mwLine(zp.x-4, zp.y, 8, "rgb(200,0,0)", 1));
+    }
   }
   
   init();
