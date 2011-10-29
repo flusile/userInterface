@@ -153,9 +153,10 @@ function Diagramm(id_)
     this.circleEnd = null;
     
     // Verschiebe den Start des TemperaturPoint an den angegebenen Punkt
-    this.shiftStartTo = function(px)
+    this.shiftStartTo = function(koord)
     {
-      this.origin.x = px;
+      koord.zeit = Math.round(koord.zeit/10)*10;
+      this.origin.x = koord.x;
       if (this.temperaturLine)
       {
         this.temperaturLine.setAttribute("x1", this.origin.x);
@@ -299,7 +300,7 @@ function Diagramm(id_)
                         e.pageY - begin_svga_y);
     kx.html(loc.x);
     ky.html(loc.y);
-    hulpe.html("Zeit " + loc.zeit + " Temp " + loc.temperatur);
+    //hulpe.html("Zeit " + loc.zeit + " Temp " + loc.temperatur);
     return loc;
 }
   
@@ -345,7 +346,7 @@ function Diagramm(id_)
     var tp = cl.ref.prev;
     var prv = tp.prev;
     var nxt = tp.next;
-    nxt.shiftStartTo(tp.origin.x);
+    nxt.shiftStartTo(tp.origin);
     tp.removeFromList();
     nxt.adjustTime();
     nxt.bringCirclesToFront(svga);
@@ -381,18 +382,21 @@ function Diagramm(id_)
   // wird als mousover aufgerufen beim Ziehen der Temperatur-Linie
   function doDragTemp(e)
   {
-    var xxx = getMouseKoords(e, currentLine);
+    var koord = getMouseKoords(e, currentLine);
     
     // aus dem Digramm raus soll es nicht laufen
-    if (xxx.y > svg_height)
+    if (koord.temperatur > temperatur_max)
     {
-      xxx.y = svg_height;
+      koord.temperatur = temperatur_max;
+    }
+    if (koord.temperatur < temperatur_min)
+    {
+      koord.temperatur = temperatur_min;
     }
     
     var tp = currentLine.ref;
-    var delta = tp.origin.y - xxx.y;
     
-    tp.origin.y = xxx.y;
+    tp.origin.temperatur = Math.round(koord.temperatur);
 
     currentLine.setAttribute("y2", tp.origin.y);
     currentLine.setAttribute("y1", tp.origin.y);
@@ -408,6 +412,7 @@ function Diagramm(id_)
       if (e.timeLine)  e.timeLine.setAttribute("y2", tp.origin.y);
       if (e.circleEnd) e.circleEnd.setAttribute("cy", tp.origin.y);
     }
+    hulpe.html("Zeit " + tp.origin.zeit + " Temp " + tp.origin.temperatur);
   }
 
   // private eventhandler
@@ -423,28 +428,34 @@ function Diagramm(id_)
   // wird als mousover aufgerufen beim Ziehen der Zeit-Linie
   function doDragTime(e)
   {
-    var xxx = getMouseKoords(e, currentLine);
+    var koord = getMouseKoords(e, currentLine);
     
     // aus dem Digramm raus soll es nicht laufen
-    if (xxx.x > svg_width)
+    if (koord.time > zeit_max)
     {
-      xxx.x = svg_width;
+      koord.time = zeit_max;
+    }
+    if (koord.time < zeit_min)
+    {
+      koord.time = zeit_min;
     }
     
     var tp = currentLine.ref;
     
     // Der Anfang darf nicht vor den Anfang des Vorgängers gelangen
-    if (xxx.x <= tp.prev.origin.x + px_min_minutes) xxx.x = tp.prev.origin.x + px_min_minutes;
+    if (koord.x <= tp.prev.origin.x + px_min_minutes) koord.x = tp.prev.origin.x + px_min_minutes;
     
     // Es darf auch nicht zu nahe an das Ende des nächsten TP kommen
     var t = tp.getEndPx();
-    if (xxx.x >= t - px_min_minutes) xxx.x = t - px_min_minutes;
+    if (koord.x >= t - px_min_minutes) koord.x = t - px_min_minutes;
 
-    // den Nachfolger über seine neue Startposition informieren
-    tp.shiftStartTo(xxx.x);
+    // neue Startposition setzen
+    tp.shiftStartTo(koord);
     
-    // SVG-Elemente nachziehen
+    // Das Ende des Vorgängers anpassen
     tp.prev.adjustEnd();
+
+    hulpe.html("Zeit " + tp.origin.zeit + " Temp " + tp.origin.temperatur);
   }
 
   // private eventhandler
