@@ -5,6 +5,24 @@ var ky;
 var help;
 var hulpe;
 
+function f0(z)
+{
+  var s = z.toString();
+  if (s.length < 2)
+  {
+    return "0" + s;
+  }
+  return s;
+}
+
+function TimeString(t)
+{
+  var h = Math.floor(t / 60);
+  var res = f0(h) + ":" + f0(t-h*60);
+  return res;
+}
+
+
 /**
  * Klasse Diagramm.
  * Beinhaltet alle Funktionen und Daten für ein einzelnes Diagramm.
@@ -16,9 +34,11 @@ function Diagramm(id_)
   // die folgenden Felder enthalten das Adjustment der SVG-Area im Dokument
   var begin_svga_x; // adjustments für links
   var begin_svga_y; // und oben.
+  
   // Offsets für das Diagramm im SVGA-Bereich (für die Beschreiftung)
   var offset_dia_x = 30;
   var offset_dia_y = 30;
+  
   // die folgenden Felder enthalten das Adjustment des Diagrammbereichs in Bezug
   // auf das Dokument
   var begin_diagram_x;
@@ -46,7 +66,7 @@ function Diagramm(id_)
   var px_temperatur_max = 0; // Pixelpos für maximale Temperatur
   
   // diverse Konstanten
-  var px_min_minutes = 10; // Nindestzeit in Pixeln
+  var zeit_raster_minuten = 10; // Nindestzeit in Pixeln
 
   // Beginn des CTor-Codes
   var svga = $("#" + id); // die svg-area, auf der wir malen
@@ -124,8 +144,6 @@ function Diagramm(id_)
         this.zeit = kx;
         this.temperatur = ky;
       }
-
-// hulpe.html("Zeit = " + fx + ", Temp. = " + fy);
     }
    
   /**
@@ -155,7 +173,7 @@ function Diagramm(id_)
     // Verschiebe den Start des TemperaturPoint an den angegebenen Punkt
     this.shiftStartTo = function(koord)
     {
-      koord.zeit = Math.round(koord.zeit/10)*10;
+      koord.zeit = Math.round(koord.zeit/zeit_raster_minuten)*zeit_raster_minuten;
       this.origin.x = koord.x;
       if (this.temperaturLine)
       {
@@ -206,11 +224,10 @@ function Diagramm(id_)
     }
 
     // Gibt unser Ende in Px zurück
-    this.getEndPx = function()
+    this.getEnd = function()
     {
       // Unser Ende ist der Anfang unseres Nachfolgers
-      if (this.next)  return this.next.origin.x;
-      return 0;
+      return this.next.origin;
     }
     
     // fügt diesen TP hinter tp ein
@@ -266,7 +283,7 @@ function Diagramm(id_)
     {
       // px und py markieren den Anfang unserer TemperaturLinie und das Ende unserer Zeitlinie
       // nx markiert das Ende unserer TemperaturLinie
-      var nx = this.getEndPx();
+      var nx = this.getEnd().x;
         
       // 1. Waagerecht - die Temperatur-Linie
       this.temperaturLine = mwLine(this.origin.x, this.origin.y, nx-this.origin.x, 
@@ -300,9 +317,8 @@ function Diagramm(id_)
                         e.pageY - begin_svga_y);
     kx.html(loc.x);
     ky.html(loc.y);
-    //hulpe.html("Zeit " + loc.zeit + " Temp " + loc.temperatur);
     return loc;
-}
+  }
   
   // private eventhandler
   // splittet eine Temperaturzeile
@@ -377,6 +393,11 @@ function Diagramm(id_)
     xxx.top=begin_svga_y;
     svga.offset(xxx);
   }
+
+  function logKoord(koord)
+  {
+    hulpe.html("Zeit " + TimeString(koord.zeit) + " Temp " + koord.temperatur + " °C");
+  }
   
   // private eventhandler
   // wird als mousover aufgerufen beim Ziehen der Temperatur-Linie
@@ -412,7 +433,7 @@ function Diagramm(id_)
       if (e.timeLine)  e.timeLine.setAttribute("y2", tp.origin.y);
       if (e.circleEnd) e.circleEnd.setAttribute("cy", tp.origin.y);
     }
-    hulpe.html("Zeit " + tp.origin.zeit + " Temp " + tp.origin.temperatur);
+    logKoord(tp.origin);
   }
 
   // private eventhandler
@@ -443,11 +464,17 @@ function Diagramm(id_)
     var tp = currentLine.ref;
     
     // Der Anfang darf nicht vor den Anfang des Vorgängers gelangen
-    if (koord.x <= tp.prev.origin.x + px_min_minutes) koord.x = tp.prev.origin.x + px_min_minutes;
+    if (koord.zeit <= tp.prev.origin.zeit + zeit_raster_minuten) 
+    {
+      koord.zeit = tp.prev.origin.zeit + zeit_raster_minuten;
+    }
     
     // Es darf auch nicht zu nahe an das Ende des nächsten TP kommen
-    var t = tp.getEndPx();
-    if (koord.x >= t - px_min_minutes) koord.x = t - px_min_minutes;
+    var t = tp.getEnd().zeit;
+    if (koord.zeit >= t - zeit_raster_minuten)
+    {
+      koord.zeit = t - zeit_raster_minuten;
+    }
 
     // neue Startposition setzen
     tp.shiftStartTo(koord);
@@ -455,7 +482,7 @@ function Diagramm(id_)
     // Das Ende des Vorgängers anpassen
     tp.prev.adjustEnd();
 
-    hulpe.html("Zeit " + tp.origin.zeit + " Temp " + tp.origin.temperatur);
+    logKoord(tp.origin);
   }
 
   // private eventhandler
