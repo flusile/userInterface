@@ -524,8 +524,11 @@ function Diagramm(id_)
     $(svga).bind("mouseup", stoppDrag);
 
     // Hintergrund malen
-    // TODO: Der Hintergrund hat jetzt keinen Platz für Beschriftung!!!
-    svga.append(mRect(px_zeit_0000, px_temperatur_min, px_zeit_2400-px_zeit_0000, px_temperatur_max - px_temperatur_min, "rgb(200,200,200)"));
+    svga.append(mRect(px_zeit_0000, 
+                      px_temperatur_max, 
+                      px_zeit_2400 - px_zeit_0000, 
+                      px_temperatur_min - px_temperatur_max, 
+                      "rgb(200,200,200)"));
 
     // 1000/24 == 41,666
     // Koordinatensystem zeichnen
