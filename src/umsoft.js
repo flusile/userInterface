@@ -58,18 +58,18 @@ function lpReq()
     {
       $("." + name).each(function(i) 
       {
-	LPStat.html("LP setze " + name + " auf " + data[name]);
+        LPStat.html("LP setze " + name + " auf " + data[name]);
         $(this).html(data[name]);
       });
       if (name == "sensor_ZentralVorlauf")
       {
-	var mb = $("#meter_ZentralVorlauf")
-	mb.attr("value", data[name]);
+        var mb = $("#meter_ZentralVorlauf")
+        mb.attr("value", data[name]);
       }
       else if (name == "sensor_BrauchWasser")
       {
-	var mb = $("#meter_BrauchWasser")
-	mb.attr("value", data[name]);
+        var mb = $("#meter_BrauchWasser")
+        mb.attr("value", data[name]);
       }	
     }
     
