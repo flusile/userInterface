@@ -494,6 +494,29 @@ function Diagramm(id_)
     help.html("start dragging time");
   }
 
+  // public function to retreve the changed (or unchanged) data
+  function getData()
+  {
+    // 1. das Array zusammenstellen
+    var idx=0; // erstes Element holen
+    var va = new Array();
+    for (var tp = tpStart.next; tp.next != null; tp = tp.next)
+    {
+      va[idx] = new Object();
+      va[idx].ts = tp.origin.zeit;
+      va[idx].temp = tp.origin.temperatur;
+      idx++;
+    }
+    
+    // 2. es als JSON-String zurückgeben
+    return JSON.stringify(va);
+  }
+  
+  function doDblClick(e)
+  {
+    help.html(getData());
+  }
+  
   // private eventhandler
   // mousup - beendet das Verschieben der Linie
   function stoppDrag(e)
@@ -501,6 +524,7 @@ function Diagramm(id_)
     $(svga).unbind("mousemove");
     currentLine = null;
     help.html("end dragging at");
+    doDblClick(e);
   }
 
   // private function to build the internal list
@@ -572,6 +596,7 @@ function Diagramm(id_)
 
     // MouseButtonUp zentral registrieren
     $(svga).bind("mouseup", stoppDrag);
+    $(svga).bind("dblclick", doDblClick);
 
     // Hilfsvariable, um fachliche Koordinaten in Pixel umzurechnen
     var zp = new Koord("T", 0, 0);
