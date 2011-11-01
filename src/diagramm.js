@@ -79,6 +79,7 @@ function Diagramm(id_)
   tpStart.next = tpEnd;
   tpEnd.prev = tpStart;
   
+  var editing = false;
   /**
    * Klasse Koord
    * Dient zum Umrechnen von fachlichen Koordinaten (hier: Zeit und Temperatur)
@@ -512,11 +513,6 @@ function Diagramm(id_)
     return JSON.stringify(va);
   }
   
-  function doDblClick(e)
-  {
-    help.html(getData());
-  }
-  
   // private eventhandler
   // mousup - beendet das Verschieben der Linie
   function stoppDrag(e)
@@ -524,7 +520,7 @@ function Diagramm(id_)
     $(svga).unbind("mousemove");
     currentLine = null;
     help.html("end dragging at");
-    doDblClick(e);
+    help.html(getData());
   }
 
   // private function to build the internal list
@@ -565,13 +561,10 @@ function Diagramm(id_)
       if (tp.temperaturLine)
       {
         svga.append(tp.temperaturLine);
-        $(tp.temperaturLine).bind("mousedown", startDragTemp);
-        $(tp.temperaturLine).bind("dblclick", splitLine);
       }
       if (tp.timeLine)
       {
         svga.append(tp.timeLine);
-        $(tp.timeLine).bind("mousedown", startDragTime);
       }
     }
     for (tp = tpStart.next; tp.next != null; tp = tp.next)
@@ -579,16 +572,86 @@ function Diagramm(id_)
       if (tp.circleStart)
       {
         svga.append(tp.circleStart);
-        $(tp.circleStart).bind("dblclick", deleteRight);
       }
       if (tp.circleEnd)
       {
         svga.append(tp.circleEnd);
-        $(tp.circleEnd).bind("dblclick", deleteLeft);
       }
     }
   }
 
+  function activateEdit()
+  {
+    // Entlang des vectors die Handler für die Elemente aktivieren.
+    var tp; // erstes Element holen
+    for (tp = tpStart.next; tp.next != null; tp = tp.next)
+    {
+      if (tp.temperaturLine)
+      {
+        $(tp.temperaturLine).bind("mousedown", startDragTemp);
+        $(tp.temperaturLine).bind("dblclick", splitLine);
+      }
+      if (tp.timeLine)
+      {
+        $(tp.timeLine).bind("mousedown", startDragTime);
+      }
+    }
+    for (tp = tpStart.next; tp.next != null; tp = tp.next)
+    {
+      if (tp.circleStart)
+      {
+        $(tp.circleStart).bind("dblclick", deleteRight);
+      }
+      if (tp.circleEnd)
+      {
+        $(tp.circleEnd).bind("dblclick", deleteLeft);
+      }
+    }
+  }
+  
+  function endEdit()
+  {
+    // Entlang des vectors die Handler für die Elemente aktivieren.
+    var tp; // erstes Element holen
+    for (tp = tpStart.next; tp.next != null; tp = tp.next)
+    {
+      if (tp.temperaturLine)
+      {
+        $(tp.temperaturLine).unbind("mousedown");
+        $(tp.temperaturLine).unbind("dblclick");
+      }
+      if (tp.timeLine)
+      {
+        $(tp.timeLine).unbind("mousedown");
+      }
+    }
+    for (tp = tpStart.next; tp.next != null; tp = tp.next)
+    {
+      if (tp.circleStart)
+      {
+        $(tp.circleStart).unbind("dblclick");
+      }
+      if (tp.circleEnd)
+      {
+        $(tp.circleEnd).unbind("dblclick");
+      }
+    }
+  }
+  
+  function doDblClick(e)
+  {
+    if (editing)
+    {
+      endEdit();
+      editing = false;
+    }
+    else
+    {
+      activateEdit();
+      editing = true;
+    }
+  }
+  
   function init()
   {
     // zuerst die Position korrigieren und speichern
@@ -615,7 +678,7 @@ function Diagramm(id_)
     // Kleine Striche für die Sunden und die °C malen
     // Stunden
     zp.temperatur = 0;
-    for (var i=0; i<24; i++)
+    for (var i=0; i<=24; i++)
     {
       zp.zeit = i*60;
       svga.append(msLine(zp.x, zp.y-4, 8, "rgb(200,0,0)", 1));
