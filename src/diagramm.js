@@ -286,9 +286,16 @@ function Diagramm(id_)
       // nx markiert das Ende unserer TemperaturLinie
       var nx = this.getEnd().x;
         
+      var sdicke = 3;
+      var radius = 3;
+      if (editing) 
+      {
+        sdicke = 5;
+        radius = 6;
+      }
       // 1. Waagerecht - die Temperatur-Linie
       this.temperaturLine = mwLine(this.origin.x, this.origin.y, nx-this.origin.x, 
-                                   "rgb(0,200,0)", 3);
+                                   "rgb(0,200,0)", sdicke);
       this.temperaturLine.ref = this;
       
       // Brauchen wir auch die ZeitLinie?
@@ -298,13 +305,13 @@ function Diagramm(id_)
         var ny = this.prev.origin.y;
 		
         // 1. Senkrecht - die Zeit-Linie
-        this.timeLine = msLine(this.origin.x, this.origin.y, ny-this.origin.y, "rgb(0,200,0)", 3);
+        this.timeLine = msLine(this.origin.x, this.origin.y, ny-this.origin.y, "rgb(0,200,0)", sdicke);
         this.timeLine.ref = this;
 
-        this.circleStart = mCircle(this.origin.x, this.origin.y, 3, "rgb(0,0,200)"); 
+        this.circleStart = mCircle(this.origin.x, this.origin.y, radius, "rgb(0,0,200)"); 
         this.circleStart.ref = this;
 
-        this.circleEnd = mCircle(this.origin.x, ny, 3, "rgb(0,0,200)"); 
+        this.circleEnd = mCircle(this.origin.x, ny, radius, "rgb(0,0,200)"); 
         this.circleEnd.ref = this;
       }
     }
