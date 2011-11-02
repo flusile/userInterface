@@ -1,10 +1,10 @@
 "use strict";
 
-function mLine(x1, y1, x2, y2, stroke, strokewidth)
+function mLine(x1, y1, x2, y2, farbe, dicke)
 {
   var obj = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  obj.setAttribute("stroke",       stroke);
-  obj.setAttribute("stroke-width", strokewidth);
+  obj.setAttribute("stroke",       farbe);
+  obj.setAttribute("stroke-width", dicke);
   obj.setAttribute("x1",           x1);
   obj.setAttribute("y1",           y1);
   obj.setAttribute("x2",           x2);
@@ -12,14 +12,14 @@ function mLine(x1, y1, x2, y2, stroke, strokewidth)
   return obj;
 }
 
-function msLine(x, y, len, stroke, strokewidth)
+function msLine(x, y, len, farbe, dicke)
 {
-  return mLine(x, y, x, y+len, stroke, strokewidth);
+  return mLine(x, y, x, y+len, farbe, dicke);
 }
 
-function mwLine(x, y, len, stroke, strokewidth)
+function mwLine(x, y, len, farbe, dicke)
 {
-  return mLine(x, y, x+len, y, stroke, strokewidth);
+  return mLine(x, y, x+len, y, farbe, dicke);
 }
 
 function mRect(x, y, xlen, ylen, colour)
