@@ -30,6 +30,9 @@ function TimeString(t)
 function Diagramm(id_)
 {
   var id=id_; // die ID des Root-Elementes, in dem alles enthalten ist
+  // Beginn des CTor-Codes
+  var svga = $("#" + id); // die svg-area, auf der wir malen
+
   var currentLine; // aktuelles Linien-Objekt für die eventHandler
   // die folgenden Felder enthalten das Adjustment der SVG-Area im Dokument
   var begin_svga_x; // adjustments für links
@@ -48,8 +51,8 @@ function Diagramm(id_)
   var zeit_min = 0; // 00:00 ist der Anfang
   var zeit_max = 24*60; // 24:00 ist das Ende
   var temperatur_min = 0; // kälter als 0°C machen wir es nicht
-  var temperatur_max = 100; // heißer als 100°C machen wir es auch nicht
-
+  var temperatur_max = getAttr("temp_max", 100); // heißer als 100°C machen wir es auch nicht
+  
   // Umrechnunskonstanten fachlich <--> Pixel
   var minutes_per_px = 2; // nur alle 2 Minuten ein Pixel (sonst wirds zu breit)
   var px_per_grad = 3; // Pixel pro °C
@@ -68,8 +71,6 @@ function Diagramm(id_)
   // diverse Konstanten
   var zeit_raster_minuten = 10; // Nindestzeit in Pixeln
 
-  // Beginn des CTor-Codes
-  var svga = $("#" + id); // die svg-area, auf der wir malen
   svga.attr("width", svg_width);
   svga.attr("height", svg_height);
   
@@ -80,6 +81,16 @@ function Diagramm(id_)
   tpEnd.prev = tpStart;
   
   var editing = false;
+
+  function getAttr(name, defval)
+  {
+    if (svga.attr(name))
+    {
+      return svga.attr(name);
+    }
+    return defval;
+  }
+  
   /**
    * Klasse Koord
    * Dient zum Umrechnen von fachlichen Koordinaten (hier: Zeit und Temperatur)
@@ -734,9 +745,11 @@ $(function()
   ky.html(88);
   help.html("dunno");
 
-  var dia = new Diagramm("svg");
-
+  var dia = new Diagramm("montag");
   dia.setData('[{"ts":0,"temp":40},{"ts":600,"temp":35},{"ts":820,"temp":30},{"ts":1320,"temp":20}]');
-  
   dia.draw();
+
+  var dia2 = new Diagramm("dienstag");
+  dia2.setData('[{"ts":0,"temp":40},{"ts":600,"temp":35},{"ts":820,"temp":30},{"ts":1320,"temp":20}]');
+  dia2.draw();
 })
