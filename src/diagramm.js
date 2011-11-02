@@ -323,6 +323,7 @@ function Diagramm(id_)
   
   // private eventhandler
   // splittet eine Temperaturzeile
+  // TODO: Verhindere, daß das Event weitergereicht wird in der Kette.
   function splitLine(e)
   {
     alert("split line");
@@ -352,10 +353,14 @@ function Diagramm(id_)
     $(ntp.circleStart).bind("dblclick", deleteRight);
     svga.append(ntp.circleEnd);
     $(ntp.circleEnd).bind("dblclick", deleteLeft);
+    
+    e.preventDefault();
+    e.stopPropagation();
   }
   
   // private eventhandler
   // Löscht die Temperaturangabe links der Zeit
+  // TODO: Verhindere, daß das Event weitergereicht wird in der Kette.
   function deleteLeft(e)
   {
     alert("deleteLeft");
@@ -367,10 +372,14 @@ function Diagramm(id_)
     tp.removeFromList();
     nxt.adjustTime();
     nxt.bringCirclesToFront(svga);
+    
+    e.preventDefault();
+    e.stopPropagation();
   }
   
   // private eventhandler
   // Löscht die Temperaturangabe rechts der Zeit
+  // TODO: Verhindere, daß das Event weitergereicht wird in der Kette.
   function deleteRight(e)
   {
     alert("deleteRight");
@@ -381,6 +390,9 @@ function Diagramm(id_)
     prev.adjustEnd();
     prev.next.adjustTime();
     prev.next.bringCirclesToFront(svga);
+    
+    e.preventDefault();
+    e.stopPropagation();
   }
   
   // justiert den Offset der Zeichenfläche auf ganze Pixel und speichert die Werte für die spätere Verwendung
