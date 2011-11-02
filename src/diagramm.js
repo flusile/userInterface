@@ -288,7 +288,7 @@ function Diagramm(id_)
         
       // 1. Waagerecht - die Temperatur-Linie
       this.temperaturLine = mwLine(this.origin.x, this.origin.y, nx-this.origin.x, 
-                                   "rgb(0,200,0)", 5);
+                                   "rgb(0,200,0)", 3);
       this.temperaturLine.ref = this;
       
       // Brauchen wir auch die ZeitLinie?
@@ -298,13 +298,13 @@ function Diagramm(id_)
         var ny = this.prev.origin.y;
 		
         // 1. Senkrecht - die Zeit-Linie
-        this.timeLine = msLine(this.origin.x, this.origin.y, ny-this.origin.y, "rgb(0,200,0)", 5);
+        this.timeLine = msLine(this.origin.x, this.origin.y, ny-this.origin.y, "rgb(0,200,0)", 3);
         this.timeLine.ref = this;
 
-        this.circleStart = mCircle(this.origin.x, this.origin.y, 6, "rgb(0,0,200)"); 
+        this.circleStart = mCircle(this.origin.x, this.origin.y, 3, "rgb(0,0,200)"); 
         this.circleStart.ref = this;
 
-        this.circleEnd = mCircle(this.origin.x, ny, 6, "rgb(0,0,200)"); 
+        this.circleEnd = mCircle(this.origin.x, ny, 3, "rgb(0,0,200)"); 
         this.circleEnd.ref = this;
       }
     }
@@ -602,10 +602,12 @@ function Diagramm(id_)
       {
         $(tp.temperaturLine).bind("mousedown", startDragTemp);
         $(tp.temperaturLine).bind("dblclick", splitLine);
+        tp.temperaturLine.setAttribute("stroke-width", 5);
       }
       if (tp.timeLine)
       {
         $(tp.timeLine).bind("mousedown", startDragTime);
+        tp.timeLine.setAttribute("stroke-width", 5);
       }
     }
     for (tp = tpStart.next; tp.next != null; tp = tp.next)
@@ -613,10 +615,12 @@ function Diagramm(id_)
       if (tp.circleStart)
       {
         $(tp.circleStart).bind("dblclick", deleteRight);
+        tp.circleStart.setAttribute("r", 6);
       }
       if (tp.circleEnd)
       {
         $(tp.circleEnd).bind("dblclick", deleteLeft);
+        tp.circleEnd.setAttribute("r", 6);
       }
     }
   }
@@ -631,10 +635,12 @@ function Diagramm(id_)
       {
         $(tp.temperaturLine).unbind("mousedown");
         $(tp.temperaturLine).unbind("dblclick");
+        tp.temperaturLine.setAttribute("stroke-width", 3);
       }
       if (tp.timeLine)
       {
         $(tp.timeLine).unbind("mousedown");
+        tp.timeLine.setAttribute("stroke-width", 3);
       }
     }
     for (tp = tpStart.next; tp.next != null; tp = tp.next)
@@ -642,10 +648,12 @@ function Diagramm(id_)
       if (tp.circleStart)
       {
         $(tp.circleStart).unbind("dblclick");
+        tp.circleStart.setAttribute("r", 3);
       }
       if (tp.circleEnd)
       {
         $(tp.circleEnd).unbind("dblclick");
+        tp.circleEnd.setAttribute("r", 3);
       }
     }
   }
