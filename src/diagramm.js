@@ -34,6 +34,7 @@ function Diagramm(id_)
   var svga = $("#" + id); // die svg-area, auf der wir malen
 
   var currentLine; // aktuelles Linien-Objekt für die eventHandler
+  
   // die folgenden Felder enthalten das Adjustment der SVG-Area im Dokument
   var begin_svga_x; // adjustments für links
   var begin_svga_y; // und oben.
@@ -74,8 +75,8 @@ function Diagramm(id_)
   svga.attr("width", svg_width);
   svga.attr("height", svg_height);
   
-  var tpStart = new TemperaturPoint("T", 0, null); // Anfang der TemperaturPoint-Liste
-  var tpEnd = new TemperaturPoint("T", 24*60, null); // Anfang der TemperaturPoint-Liste
+  var tpStart = new TemperaturPoint("T", zeit_min, null); // Anfang der TemperaturPoint-Liste
+  var tpEnd = new TemperaturPoint("T", zeit_max, null); // Anfang der TemperaturPoint-Liste
   // Sie bilden den Rumpf der Liste
   tpStart.next = tpEnd;
   tpEnd.prev = tpStart;
@@ -330,10 +331,13 @@ function Diagramm(id_)
 
   function getMouseKoords(e, obj)
   {
-    var xxx = $(obj).offset();
+    //var xxx = $(obj).offset();
+    var xxx      = svga.offset();
     var loc = new Koord("X", 
-                        e.pageX - begin_svga_x, 
-                        e.pageY - begin_svga_y);
+//                        e.pageX - begin_svga_x, 
+//                        e.pageY - begin_svga_y);
+                        e.pageX - xxx.left, 
+                        e.pageY - xxx.top);
     kx.html(loc.x);
     ky.html(loc.y);
     return loc;
