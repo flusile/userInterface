@@ -39,11 +39,6 @@ function Diagramm(id_)
   var offset_dia_x = 30;
   var offset_dia_y = 30;
   
-  // die folgenden Felder enthalten das Adjustment des Diagrammbereichs in Bezug
-  // auf das Dokument
-  var begin_diagram_x;
-  var begin_diagram_y;
-  
   // fachliche Grenzen für das Diagramm
   var zeit_min = 0; // 00:00 ist der Anfang
   var zeit_max = 24*60; // 24:00 ist das Ende
