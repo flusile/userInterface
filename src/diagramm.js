@@ -35,10 +35,6 @@ function Diagramm(id_)
 
   var currentLine; // aktuelles Linien-Objekt für die eventHandler
   
-  // die folgenden Felder enthalten das Adjustment der SVG-Area im Dokument
-  var begin_svga_x; // adjustments für links
-  var begin_svga_y; // und oben.
-  
   // Offsets für das Diagramm im SVGA-Bereich (für die Beschreiftung)
   var offset_dia_x = 30;
   var offset_dia_y = 30;
@@ -329,14 +325,11 @@ function Diagramm(id_)
     }
   }
 
-  function getMouseKoords(e, obj)
+  function getMouseKoords(e)
   {
-    //var xxx = $(obj).offset();
     var xxx      = svga.offset();
     var loc = new Koord("X", 
-//                        e.pageX - begin_svga_x, 
-//                        e.pageY - begin_svga_y);
-                        e.pageX - xxx.left, 
+                        e.pageX - xxx.left + offset_dia_x,
                         e.pageY - xxx.top);
     kx.html(loc.x);
     ky.html(loc.y);
@@ -345,12 +338,11 @@ function Diagramm(id_)
   
   // private eventhandler
   // splittet eine Temperaturzeile
-  // TODO: Verhindere, daß das Event weitergereicht wird in der Kette.
   function splitLine(e)
   {
     alert("split line");
     var cl = e.currentTarget;
-    var xxx = getMouseKoords(e, cl);
+    var xxx = getMouseKoords(e);
     var ctp = cl.ref;
     var ntp = new TemperaturPoint("T", xxx.zeit, ctp.origin.temperatur);
     
@@ -382,7 +374,6 @@ function Diagramm(id_)
   
   // private eventhandler
   // Löscht die Temperaturangabe links der Zeit
-  // TODO: Verhindere, daß das Event weitergereicht wird in der Kette.
   function deleteLeft(e)
   {
     alert("deleteLeft");
@@ -401,7 +392,6 @@ function Diagramm(id_)
   
   // private eventhandler
   // Löscht die Temperaturangabe rechts der Zeit
-  // TODO: Verhindere, daß das Event weitergereicht wird in der Kette.
   function deleteRight(e)
   {
     alert("deleteRight");
@@ -417,15 +407,16 @@ function Diagramm(id_)
     e.stopPropagation();
   }
   
-  // justiert den Offset der Zeichenfläche auf ganze Pixel und speichert die Werte für die spätere Verwendung
+  // justiert den Offset der Zeichenfläche auf ganze Pixel
+  // Eine Spoeicherung dieser Daten hat keinen Zweck, weil die Position sich durch Verändern der Fenstergröße
+  // jederzeit ändern kann.
+  // Wahrscheinlich ist die ganze Funktion jetzt obsolet.
   function adjustOffset()
   {
     // Wir müssen den offset glattziehen. Er ist initial sehr krumm.
-    var xxx      = svga.offset();
-    begin_svga_x = Math.ceil(xxx.left);
-    begin_svga_y = Math.ceil(xxx.top);
-    xxx.left=begin_svga_x;
-    xxx.top=begin_svga_y;
+    var xxx  = svga.offset();
+    xxx.left = Math.ceil(xxx.left);
+    xxx.to   = Math.ceil(xxx.top);
     svga.offset(xxx);
   }
 
@@ -438,7 +429,7 @@ function Diagramm(id_)
   // wird als mousover aufgerufen beim Ziehen der Temperatur-Linie
   function doDragTemp(e)
   {
-    var koord = getMouseKoords(e, currentLine);
+    var koord = getMouseKoords(e);
     
     // aus dem Digramm raus soll es nicht laufen
     if (koord.temperatur > temperatur_max)
@@ -469,6 +460,9 @@ function Diagramm(id_)
       if (e.circleEnd) e.circleEnd.setAttribute("cy", tp.origin.y);
     }
     logKoord(tp.origin);
+    
+    e.preventDefault();
+    e.stopPropagation();    
   }
 
   // private eventhandler
@@ -478,13 +472,16 @@ function Diagramm(id_)
     currentLine = e.currentTarget;
     $(svga).bind("mousemove", doDragTemp);
     help.html("start dragging temp");
+
+    e.preventDefault();
+    e.stopPropagation();
   }
 
   // private eventhandler
   // wird als mousover aufgerufen beim Ziehen der Zeit-Linie
   function doDragTime(e)
   {
-    var koord = getMouseKoords(e, currentLine);
+    var koord = getMouseKoords(e);
     
     // aus dem Digramm raus soll es nicht laufen
     if (koord.time > zeit_max)
@@ -518,6 +515,9 @@ function Diagramm(id_)
     tp.prev.adjustEnd();
 
     logKoord(tp.origin);
+
+    e.preventDefault();
+    e.stopPropagation();    
   }
 
   // private eventhandler
@@ -527,9 +527,12 @@ function Diagramm(id_)
     currentLine = e.currentTarget;
     $(svga).bind("mousemove", doDragTime);
     help.html("start dragging time");
+
+    e.preventDefault();
+    e.stopPropagation();
   }
 
-  // public function to retreve the changed (or unchanged) data
+  // public function to retrieve the changed (or unchanged) data
   function getData()
   {
     // 1. das Array zusammenstellen
@@ -555,6 +558,9 @@ function Diagramm(id_)
     currentLine = null;
     help.html("end dragging at");
     help.html(getData());
+
+    e.preventDefault();
+    e.stopPropagation();
   }
 
   // private function to build the internal list
@@ -692,6 +698,9 @@ function Diagramm(id_)
       activateEdit();
       editing = true;
     }
+
+    e.preventDefault();
+    e.stopPropagation();
   }
   
   function init()
@@ -718,7 +727,7 @@ function Diagramm(id_)
     svga.append(msLine(px_zeit_0000, px_temperatur_min, px_temperatur_max - px_temperatur_min, "rgb(200,0,0)", 3));
     
     // Kleine Striche für die Sunden und die °C malen
-    // Stunden
+    // °C
     zp.temperatur = 0;
     for (var i=0; i<=24; i++)
     {
@@ -726,7 +735,7 @@ function Diagramm(id_)
       svga.append(msLine(zp.x, zp.y-4, 8, "rgb(200,0,0)", 1));
     }
     
-    // °C
+    // Stunden
     zp.zeit = 0;
     for (var i=temperatur_min; i<=temperatur_max; i+=5)
     {
