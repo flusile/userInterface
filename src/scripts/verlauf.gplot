@@ -1,0 +1,15 @@
+#! gnuplot
+set title 'Messwerte'
+set pointsize 0.3
+set grid
+set xlabel 'Tageszeit'
+set xdata time
+set timefmt "%H:%M:%S"
+set xrange ["00:00:00":"23:59:59"]
+set ylabel 'Temperatur in C'
+set yrange [10:90]
+set format x "%H:%M:%S"
+set xtics rotate
+set terminal png
+set output "verlauf.png"
+plot 'ZentralVorlauf.dat' using 1:2 title "Vorlauf" with lines, 'PufferOben.dat' using 1:2 title "Puffer oben" with lines, 'FussbodenVorlauf.dat' using 1:2 title "Vorlauf Fussboden" with lines, 'FussbodenRuecklauf.dat' using 1:2 title "Ruecklauf Fussboden" with lines, 'BrauchWasser.dat' using 1:2 title "Brauchwasser" with lines

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if ping -c1 ow-server-enet
+then
+sudo /opt/owfs/bin/owserver --USB=all --enet=ow-server-enet
+else
+sudo /opt/owfs/bin/owserver --USB=all 
+fi
+
+/opt/owfs/bin/owhttpd -s 127.0.0.1 --port 4711
+
+SBASE=~/sensors
+/opt/owfs/bin/owfs -s 127.0.0.1 --mountpoint $SBASE
+sleep 1
+echo -n BrauchWasser >$SBASE/10.0F1429020800/alias 
+echo -n FussbodenVorlauf >$SBASE/10.326B0B020800/alias 
+echo -n FussbodenRuecklauf >$SBASE/10.808D0B020800/alias 
+echo -n ZentralVorlauf >$SBASE/10.A34729020800/alias 
+echo -n PufferOben >$SBASE/10.E3AC0B020800/alias 
+echo -n PufferMitte >$SBASE/10.CF770B020800/alias 
+
+# 10.0F1429020800, grau, kein Streifen (BrauchWasser)
+# 10.326B0B020800, grün, 1 Streifen (FussbodenVorlauf)
+# 10.77AA0B020800, blau, kein Streifen
+# 10.808D0B020800, grün, kein Streifen (FussbodenRuecklauf)
+# 10.A34729020800, gelb, 1 Streifen (ZentralVorlauf)
+# 10.E3AC0B020800, gelb, kein Streifen (PufferOben)
+# 10.C3910B020800, blau, kein Streifen
+# 10.CF770B020800, rot, 1 Streifen (PufferMitte)
