@@ -38,7 +38,7 @@ $(function()
 	
 var myAjaxErrorHandler = function(xhr, errmsg, err)
 {
-  alert("Ajax failed: " + errmsg + " : " + err);
+  // alert("Ajax failed: " + errmsg + " : " + err);
   clearTimeout(glob_lp);
   glob_lp = null;
   LPStat.html("Notaus");
