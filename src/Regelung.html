@@ -97,30 +97,22 @@ Statt der vielen div genügt dann ein nav.
 
 		<article class="tab" id="fussboden-tab">
 			<h2 class="tab-label">Fußbodenheizung</h2>
-				<table id="history" class="visible">
-					<thead>
-						<tr>
-							<th>Timestamp</th>
-							<th>Request</th>
-							<th>Reponse</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>1970-01-01&nbsp;00:00:00</td>
-							<td>
-								<a href="#request.xml">XML</a> 
-								<a href="request.bin">BIN</a> 
-								<a href="request.prvl">PRVL</a>
-							</td>
-							<td>
-								<a href="#response.xml">XML</a> 
-								<a href="response.bin">BIN</a> 
-								<a href="request.prvl">PRVL</a>
-							</td>
-						</tr>
-					</tbody>
-				</table>
+			<div class="shrink-wrap">
+				<ol class="werte">
+					<li>Fussboden-Vorlauf: <span class="sensor_FussbodenVorlauf">{{ sensor:Fußbodenvorlauf }}</span>42°C</li>
+					<li>Aussen Ist: <span class="sensor_Aussen">{{ regler:Fußboden:soll }}</span>8°C</li>
+					<li>Soll: <span class="regler_Fussboden_sollVorlauf">{{ regler:Fußboden:soll }}</span>44°C</li>
+					<li>Aussen Max: <span class="regler_Fussboden_aussenMax">{{ regler:Fußboden:außenMax }}</span>20°C</li>
+					<li>Raum Soll: <span class="regler_Fussboden_raumSoll">{{ regler:Fußboden:raumsoll }}</span>20°C</li>
+					<li>Sperrzeit: <span class="regler_Fussboden_sperrzeitMischer">{{ regler:Fußboden:sperrzeitMischer }}</span>00:00:45</li>
+					<li>Ende der Sperrzeit: <span class="regler_Fussboden_endeSperrzeit">{{ regler:Fußboden:endeNachlauf }}</span>2011-Dec-31 13:53:10</li>
+					<li>Status Fussboden: <span class="regler_Fussboden_Status">{{ regler:Fußboden:Status }}</span>gesperrt</li>
+					<li>Zustand Pumpe: <span class="actor_FussbodenMischer_on">{{ actor:FußbodenMischer:on: }}</span>Aus</li>
+					<li>Status Pumpe: <span class="actor_FussbodenMischer_state">{{ actor:FußbodenMischer:state: }}</span>passiv</li>
+					<li>Zustand Pumpe: <span class="actor_FussbodenPumpe_on">{{ actor:FußbodenPumpe:on }}</span>An</li>
+					<li>Status Regler: <span class="actor_FussbodenPumpe_state">{{ actor:FußbodenPumpe:state }}</span>passiv</li>
+				</ol>
+			</div>
 			</article>
 		</div><!-- class="tabs" -->
 	</section><!-- id="content" -->
