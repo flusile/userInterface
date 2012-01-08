@@ -33,10 +33,10 @@ meter
 	</ol>
 	<br />
 	<ol class="werte">
-		<li>ZentralVorlauf: <span class="sensor_ZentralVorlauf">{{ sensor:zentralvorlauf }}</span></li>
-		<li>Puffer oben: <span class="sensor_pufferOben">{{ sensor:pufferOben }}</span></li>
-		<li>Puffer mitte: <span class="sensor_pufferMitte">{{ sensor:pufferMitte }}</span></li>
-		<li>Puffer unten: <span class="sensor_pufferUnten">{{ sensor:pufferUnten }}</span></li>
+		<li>ZentralVorlauf: <span class="sensor_ZentralVorlauf">{{ sensor:zentralvorlauf }}</span>°C</li>
+		<li>Puffer oben: <span class="sensor_PufferOben">{{ sensor:PufferOben }}</span>°C</li>
+		<li>Puffer mitte: <span class="sensor_PufferMitte">{{ sensor:PufferMitte }}</span>°C</li>
+		<li>Puffer unten: <span class="sensor_PufferUnten">{{ sensor:PufferUnten }}</span>°C</li>
 	</ol>
 </aside>
 
@@ -99,18 +99,18 @@ Statt der vielen div genügt dann ein nav.
 			<h2 class="tab-label">Fußbodenheizung</h2>
 			<div class="shrink-wrap">
 				<ol class="werte">
-					<li>Fussboden-Vorlauf: <span class="sensor_FussbodenVorlauf">{{ sensor:Fußbodenvorlauf }}</span>42°C</li>
-					<li>Aussen Ist: <span class="sensor_Aussen">{{ regler:Fußboden:soll }}</span>8°C</li>
-					<li>Soll: <span class="regler_Fussboden_sollVorlauf">{{ regler:Fußboden:soll }}</span>44°C</li>
-					<li>Aussen Max: <span class="regler_Fussboden_aussenMax">{{ regler:Fußboden:außenMax }}</span>20°C</li>
-					<li>Raum Soll: <span class="regler_Fussboden_raumSoll">{{ regler:Fußboden:raumsoll }}</span>20°C</li>
-					<li>Sperrzeit: <span class="regler_Fussboden_sperrzeitMischer">{{ regler:Fußboden:sperrzeitMischer }}</span>00:00:45</li>
-					<li>Ende der Sperrzeit: <span class="regler_Fussboden_endeSperrzeit">{{ regler:Fußboden:endeNachlauf }}</span>2011-Dec-31 13:53:10</li>
-					<li>Status Fussboden: <span class="regler_Fussboden_Status">{{ regler:Fußboden:Status }}</span>gesperrt</li>
-					<li>Zustand Pumpe: <span class="actor_FussbodenMischer_on">{{ actor:FußbodenMischer:on: }}</span>Aus</li>
-					<li>Status Pumpe: <span class="actor_FussbodenMischer_state">{{ actor:FußbodenMischer:state: }}</span>passiv</li>
-					<li>Zustand Pumpe: <span class="actor_FussbodenPumpe_on">{{ actor:FußbodenPumpe:on }}</span>An</li>
-					<li>Status Regler: <span class="actor_FussbodenPumpe_state">{{ actor:FußbodenPumpe:state }}</span>passiv</li>
+					<li>Fussboden-Vorlauf: <span class="sensor_FussbodenVorlauf">{{ sensor:Fußbodenvorlauf }}</span>°C</li>
+					<li>Aussen Ist: <span class="sensor_Aussen">{{ regler:Fußboden:soll }}</span>°C</li>
+					<li>Soll: <span class="regler_Fussboden_sollVorlauf">{{ regler:Fußboden:soll }}</span>°C</li>
+					<li>Aussen Max: <span class="regler_Fussboden_aussenMax">{{ regler:Fußboden:außenMax }}</span>°C</li>
+					<li>Raum Soll: <span class="regler_Fussboden_sollRaum">{{ regler:Fußboden:raumsoll }}</span>°C</li>
+					<li>Sperrzeit: <span class="regler_Fussboden_sperrzeitMischer">{{ regler:Fußboden:sperrzeitMischer }}</span></li>
+					<li>Ende der Sperrzeit: <span class="regler_Fussboden_endeSperrzeit">{{ regler:Fußboden:endeNachlauf }}</span></li>
+					<li>Status Fussboden: <span class="regler_Fussboden_Status">{{ regler:Fußboden:Status }}</span></li>
+					<li>Zustand Pumpe: <span class="actor_FussbodenMischer_on">{{ actor:FußbodenMischer:on: }}</span></li>
+					<li>Status Pumpe: <span class="actor_FussbodenMischer_state">{{ actor:FußbodenMischer:state: }}</span></li>
+					<li>Zustand Pumpe: <span class="actor_FussbodenPumpe_on">{{ actor:FußbodenPumpe:on }}</span></li>
+					<li>Status Regler: <span class="actor_FussbodenPumpe_state">{{ actor:FußbodenPumpe:state }}</span></li>
 				</ol>
 			</div>
 			</article>
