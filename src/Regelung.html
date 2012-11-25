@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
-<meta http-equiv="refresh" content="1000; URL=/">
 <!--
+<meta http-equiv="refresh" content="1000; URL=/">
 header
 footer
 nav
@@ -18,13 +18,13 @@ meter
 </head>
 
 <body>
-<header> {{ context:processName22 }} </header>
+<header> Heizungs-Regelung </header>
 
 <aside>
 	<ol class="werte">
-		<li>Version: <span class="context_version">{{ context:version }}</span></li>
+<!--		<li>Version: <span class="context_version">{{ context:version }}</span></li>
 		<li>Compiled: <span class="context_compiled">{{ context:compiled }}</span></li>
-		<li>PID: <span class="context_pid">{{ context:pid }}</span></li>
+-->		<li>PID: <span class="context_pid">{{ context:pid }}</span></li>
 		<li>Started: <span class="context_started">{{ context:started }}</span></li>
 		<li>aktuelle Zeit: <span class="ctime">{{ time }}</span></li>
 		<li>letzte Aktualisierung: <span class="ltime">{{ time }}</span></li>
@@ -62,7 +62,7 @@ Statt der vielen div genügt dann ein nav.
 					<li>Zustand Pumpe: <span class="actor_BrauchWasserPumpe_on">{{ actor:BrauchWasserPumpe:on }}</span></li>
 					<li>Zustand Regler: <span class="regler_BrauchWasser_Status">???</span></li>
 				</ol>
-				<meter  id="meter_ZentralVorlauf"
+<!--				<meter  id="meter_ZentralVorlauf"
 					title="Füllstand Pufferspeicher"
 					value="75"
 					min="0"
@@ -74,7 +74,7 @@ Statt der vielen div genügt dann ein nav.
 					min="0"
 					max="100"
 				>Warmwasser: 55°C</meter> 
-			</div>
+-->			</div>
 		</article><!-- id="brauchwasser-tab" -->
 
 		<article id="radiator-tab" class="tab">
