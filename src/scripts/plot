@@ -1,0 +1,31 @@
+#!/bin/bash
+
+S=$1
+BASE=$(dirname $0)
+cd $BASE
+BASE=$PWD
+cd -
+
+echo "getting dates"
+DIRS=$(zcat $S/EnetService.log_*.gz | $BASE/plotprep.datum | sort -u)
+
+echo "found $DIRS"
+for d in $DIRS
+do
+  mkdir -p $d
+done
+
+echo "getting measure points"
+
+zcat $S/EnetService.log_*.gz | $BASE/plotprep
+
+echo "plotting"
+for d in $DIRS
+do
+  echo "  in $d"
+  cd $d
+  $BASE/verlauf.gplot
+  cd -
+done
+
+echo "done"

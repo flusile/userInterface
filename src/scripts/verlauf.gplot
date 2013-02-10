@@ -1,4 +1,4 @@
-#! gnuplot
+#! /usr/bin/gnuplot
 set title 'Messwerte'
 set pointsize 0.3
 set grid
@@ -10,6 +10,14 @@ set ylabel 'Temperatur in C'
 set yrange [10:90]
 set format x "%H:%M:%S"
 set xtics rotate
-set terminal png
+#set terminal png size 640,480
+set terminal png size 1280,960
 set output "verlauf.png"
-plot 'ZentralVorlauf.dat' using 1:2 title "Vorlauf" with lines, 'PufferOben.dat' using 1:2 title "Puffer oben" with lines, 'FussbodenVorlauf.dat' using 1:2 title "Vorlauf Fussboden" with lines, 'FussbodenRuecklauf.dat' using 1:2 title "Ruecklauf Fussboden" with lines, 'BrauchWasser.dat' using 1:2 title "Brauchwasser" with lines
+plot 'ZentralVorlauf.dat' using 1:2 title "Vorlauf" with lines, \
+     'FussbodenVorlauf.dat' using 1:2 title "Vorlauf Fussboden" with lines, \
+     'FussbodenRuecklauf.dat' using 1:2 title "Ruecklauf Fussboden" with lines, \
+     'BrauchWasser.dat' using 1:2 title "Brauchwasser" with lines, \
+     'Aussen.dat' using 1:2 title "Aussen" with lines, \
+     'PufferOben.dat' using 1:2 title "Puffer oben" with lines, \
+     'PufferMitte.dat' using 1:2 title "Puffer mitte" with lines, \
+     'PufferUnten.dat' using 1:2 title "Puffer unten" with lines

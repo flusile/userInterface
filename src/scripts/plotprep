@@ -1,0 +1,26 @@
+#!/usr/bin/gawk -f
+
+# Datum als dir
+# h:m:s temperatur im File
+# Sensorname.dat als Filename im dir
+#
+
+BEGIN { state="T"; }
+state == "T" && /^processEvent / && $5 == "SI" {
+d=$2;
+t=$3;
+temp=$7
+state="N";
+next;
+}
+
+state == "N" && /^processEvent / {
+n=$5;
+split(n, x, "=");
+n=x[1];
+state="T";
+
+# Ausgabe:
+print t, temp >>d "/" n ".dat"
+}
+
