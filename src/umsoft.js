@@ -92,7 +92,8 @@ function f0(z)
 
 function DateString(d)
 {
-  var res = f0(d.getDate()) + "." + f0(d.getMonth()) + "." + d.getFullYear();
+  // getMonth() liefert 0..11 statt 1..12, wie man es erwarten könnte
+  var res = f0(d.getDate()) + "." + f0(d.getMonth()+1) + "." + d.getFullYear();
   res += " " + f0(d.getHours()) 
   res += ":" + f0(d.getMinutes()) 
   res += ":" + f0(d.getSeconds());
