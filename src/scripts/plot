@@ -2,10 +2,10 @@
 
 S=$1
 BASE=$(dirname $0)
-cd $BASE
-BASE=$PWD
-cd -
+BASE=$(readlink -f $BASE)
 
+if false
+then
 echo "getting dates"
 DIRS=$(zcat $S/EnetService.log_*.gz | $BASE/plotprep.datum | sort -u)
 
@@ -18,13 +18,15 @@ done
 echo "getting measure points"
 
 zcat $S/EnetService.log_*.gz | $BASE/plotprep
+fi
 
 echo "plotting"
-for d in $DIRS
+for d in *-*-*
 do
   echo "  in $d"
   cd $d
-  $BASE/verlauf.gplot
+  cat $BASE/verlauf.gplot | gawk -v date=$d '
+  // { gsub("{d}", date); print; }' | gnuplot
   cd -
 done
 
