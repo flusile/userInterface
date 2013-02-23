@@ -1,20 +1,40 @@
 #!/bin/bash
 
-S=$1
-D=${2:-} # Datum im Format 2013-Feb-23
+S="$@"
+#D=${2:-} # Datum im Format 2013-Feb-23
 BASE=$(dirname $0)
 BASE=$(readlink -f $BASE)
 
 . $BASE/jullib.sh
 
+# simple tool for making zcat tolerant
 mycat()
 {
   for f
   do
     if [ ${f%.gz} = $f ]
     then
+      #echo "cat $f" >/dev/tty
       cat $f
     else
+      #echo "zcat $f" >/dev/tty
+      zcat $f
+    fi
+  done
+}
+
+# reads files from stdin and writes the content of that file to stdout
+# if filename ends in .gz decompress before
+tocat()
+{
+  while read f
+  do
+    if [ ${f%.gz} = $f ]
+    then
+      #echo "cat $f" >/dev/tty
+      cat $f
+    else
+      #echo "zcat $f" >/dev/tty
       zcat $f
     fi
   done
@@ -33,13 +53,18 @@ mkdir -p $D
 
 echo "getting measure points"
 
-mycat $S/EnetService.log_* | fgrep $D | $BASE/plotprep
+#mycat $S/EnetService.log_* | fgrep $D | $BASE/plotprep
+#find $S -name "EnetService.log_*" | sort | tocat | fgrep $D | tee save | $BASE/plotprep
+for f in $S
+do
+  ls $f/EnetService.log_* 
+done | tocat | fgrep $D | $BASE/plotprep
 
 echo "plotting"
 echo "  in $D"
 cd $D
+
 cat $BASE/verlauf.gplot | gawk -v date=$D '
   // { gsub("{d}", date); print; }' | gnuplot
-cd -
 
 echo "done"
