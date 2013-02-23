@@ -36,11 +36,10 @@ echo "getting measure points"
 mycat $S/EnetService.log_* | fgrep $D | $BASE/plotprep
 
 echo "plotting"
-  echo "  in $D"
-  cd $D
-  cat $BASE/verlauf.gplot | gawk -v date=$D '
+echo "  in $D"
+cd $D
+cat $BASE/verlauf.gplot | gawk -v date=$D '
   // { gsub("{d}", date); print; }' | gnuplot
-  cd -
-done
+cd -
 
 echo "done"
