@@ -1,5 +1,7 @@
 #!/usr/bin/gawk -f
 
+# Ermittelt die vorkommenden Datums-Angaben
+# Damit werden die Verzeichnisse angelegt
 # Datum als dir
 # h:m:s temperatur im File
 # Sensorname.dat als Filename im dir

@@ -1,0 +1,46 @@
+#!/bin/bash
+
+S=$1
+D=${2:-} # Datum im Format 2013-Feb-23
+BASE=$(dirname $0)
+BASE=$(readlink -f $BASE)
+
+. $BASE/jullib.sh
+
+mycat()
+{
+  for f
+  do
+    if [ ${f%.gz} = $f ]
+    then
+      cat $f
+    else
+      zcat $f
+    fi
+  done
+}
+
+if [ "$D" = "" ]
+then
+  # gestriges Datum ermitteln
+   J=$(dat2jul $(date +"%Y %m %d"))
+   let J=J-1
+   set -- $(jul2dat $J)
+   D=$(date -d"$1-$2-$3" +"%Y-%b-%d")
+fi
+
+mkdir -p $D
+
+echo "getting measure points"
+
+mycat $S/EnetService.log_* | fgrep $D | $BASE/plotprep
+
+echo "plotting"
+  echo "  in $D"
+  cd $D
+  cat $BASE/verlauf.gplot | gawk -v date=$D '
+  // { gsub("{d}", date); print; }' | gnuplot
+  cd -
+done
+
+echo "done"
