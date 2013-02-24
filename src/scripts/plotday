@@ -49,6 +49,7 @@ then
    D=$(date -d"$1-$2-$3" +"%Y-%b-%d")
 fi
 
+rm -rf $D
 mkdir -p $D
 
 echo "getting measure points"
