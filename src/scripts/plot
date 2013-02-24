@@ -4,7 +4,7 @@ S=$1
 BASE=$(dirname $0)
 BASE=$(readlink -f $BASE)
 
-if false
+if true
 then
 echo "getting dates"
 DIRS=$(zcat $S/EnetService.log_*.gz | $BASE/plotprep.datum | sort -u)

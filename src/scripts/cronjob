@@ -1,0 +1,14 @@
+#!/bin/bash
+
+BASE=$(dirname $0)
+BASE=$(readlink -f $BASE)
+
+SS=/home/ulf/src/Heizung/workspace/regelung/run
+DD=/home/ulf/src/Heizung/ws_js/userInterface/src/scripts/bilder
+cd $DD
+$BASE/plotday $S/gz $s
+cp -l 20*/*.png ~/backup/bilder
+cd $SS
+gzip -v *
+mv *.gz gz
+
