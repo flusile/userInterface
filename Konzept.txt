@@ -4,7 +4,7 @@ Felder, die initial beim ersten Laden der Seite gefüllt werden sollen, müssen di
 {{ name[:subname] }} 
 haben. Dabei kann es beliebig viele Subnamen geben: z.B. {{ name:subname:subsub:subsubsub }}
 Diese Namen werden im Server beim Ausliefern der Seite durch die entsprechenden Werte aus dem laufenden Programm ersetzt.
-Sie müssen daher auch immer zu den im Server bekannten namen passen.
+Sie müssen daher auch immer zu den im Server bekannten Namen passen.
 
 Felder, die später vom Server aktualisiert werden sollen, müssen in ihrem class-Attribut einen Namen haben.
 Dieser Name entspricht ggf. dem oben genannten Platzhalter, wobei jedoch alle : durch _ ersetzt werden.

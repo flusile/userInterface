@@ -44,7 +44,7 @@ if [ "$D" = "" ]
 then
   # gestriges Datum ermitteln
    J=$(dat2jul $(date +"%Y %m %d"))
-   let J=J-1
+   #let J=J-1
    set -- $(jul2dat $J)
    D=$(date -d"$1-$2-$3" +"%Y-%b-%d")
 fi
@@ -54,11 +54,14 @@ mkdir -p $D
 
 echo "getting measure points"
 
+# QuerySensorsThread.log_*
+# processEvent 2017-Apr-18 21:38:31 : ZentralVorlauf=50
+
 #mycat $S/EnetService.log_* | fgrep $D | $BASE/plotprep
 #find $S -name "EnetService.log_*" | sort | tocat | fgrep $D | tee save | $BASE/plotprep
 for f in $S
 do
-  ls $f/EnetService.log_* 
+  ls $f/QuerySensorsThread.log_*
 done | tocat | fgrep $D | $BASE/plotprep
 
 echo "plotting"

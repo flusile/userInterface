@@ -2,8 +2,9 @@
 
 # Datum als dir
 # h:m:s temperatur im File
-# Sensorname.dat als Filename im dir
-#
+# processEvent 2017-Apr-18 21:42:31 : SI 9B0008020B8D8010 27.5000
+# processEvent 2017-Apr-18 21:42:31 : FussbodenRuecklauf=27
+
 
 BEGIN { state="T"; }
 state == "T" && /^processEvent / && $5 == "SI" {
