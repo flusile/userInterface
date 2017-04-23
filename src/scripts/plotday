@@ -44,7 +44,7 @@ if [ "$D" = "" ]
 then
   # gestriges Datum ermitteln
    J=$(dat2jul $(date +"%Y %m %d"))
-   #let J=J-1
+   let J=J-1
    set -- $(jul2dat $J)
    D=$(date -d"$1-$2-$3" +"%Y-%b-%d")
 fi

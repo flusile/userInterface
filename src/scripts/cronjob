@@ -1,19 +1,28 @@
 #!/bin/bash
+# m h  dom mon dow   command
+# 0 1  *   *   *     crontab
 
 BASE=$(dirname $0)
 BASE=$(readlink -f $BASE)
 
-SS=/home/ulf/src/Heizung/workspace/regelung/run
-DD=/home/ulf/src/Heizung/ws_js/userInterface/src/scripts/bilder
+SS=/home/ulf/heizung/gz
+DD=/home/ulf/public_html/heizung/bilder
+
+mkdir -p $DD
 
 doit()
 {
+set -x
 cd $DD
-$BASE/plotday $SS/gz $SS
-cp -l 20*/*.png ~/backup/bilder
+$BASE/plotday $SS/
+
 cd $SS
-gzip -v *
-mv *.gz gz
+for f in *.log_*
+do
+  DS=$(echo $f | cut -d '_' -f2)
+  mkdir -p ../arch/$DS
+  mv $f ../arch/$DS
+done
 }
 
 doit >>~/tmp/cronjob.log 2>&1
