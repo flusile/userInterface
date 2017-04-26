@@ -40,6 +40,7 @@ tocat()
   done
 }
 
+set -x
 if [ "$D" = "" ]
 then
   # gestriges Datum ermitteln
@@ -47,6 +48,7 @@ then
    let J=J-1
    set -- $(jul2dat $J)
    D=$(date -d"$1-$2-$3" +"%Y-%m-%d")
+   DP=$(date -d"$1-$2-$3" +"%Y-%b-%d")
 fi
 
 DDir=$(echo $D | tr '-' '/')
@@ -57,13 +59,13 @@ echo "getting measure points"
 
 # QuerySensorsThread.log_*
 # processEvent 2017-Apr-18 21:38:31 : ZentralVorlauf=50
-
+set +x
 #mycat $S/EnetService.log_* | fgrep $D | $BASE/plotprep
 #find $S -name "EnetService.log_*" | sort | tocat | fgrep $D | tee save | $BASE/plotprep
 for f in $S
 do
   ls $f/QuerySensorsThread.log_*
-done | tocat | fgrep $D | $BASE/plotprep
+done | tocat | fgrep $DP | $BASE/plotprep
 
 echo "plotting"
 echo "  in $DDir"
@@ -73,3 +75,4 @@ cat $BASE/verlauf.gplot | gawk -v date=$D '
   // { gsub("{d}", date); print; }' | gnuplot
 
 echo "done"
+
