@@ -10,20 +10,20 @@
 function transDate(d)
 {
     split(d, dt, "-");
-    if      (dt[1] == "Jan") dt[1] = 01;
-    else if (dt[1] == "Feb") dt[1] = 02;
-    else if (dt[1] == "Mar") dt[1] = 03;
-    else if (dt[1] == "Apr") dt[1] = 04;
-    else if (dt[1] == "May") dt[1] = 05;
-    else if (dt[1] == "Jun") dt[1] = 06;
-    else if (dt[1] == "Jul") dt[1] = 07;
-    else if (dt[1] == "Aug") dt[1] = 08;
-    else if (dt[1] == "Sep") dt[1] = 09;
-    else if (dt[1] == "Oct") dt[1] = 10;
-    else if (dt[1] == "Nov") dt[1] = 11;
-    else if (dt[1] == "Dec") dt[1] = 12;
+    if      (dt[2] == "Jan") dt[2] = "01";
+    else if (dt[2] == "Feb") dt[2] = "02";
+    else if (dt[2] == "Mar") dt[2] = "03";
+    else if (dt[2] == "Apr") dt[2] = "04";
+    else if (dt[2] == "May") dt[2] = "05";
+    else if (dt[2] == "Jun") dt[2] = "06";
+    else if (dt[2] == "Jul") dt[2] = "07";
+    else if (dt[2] == "Aug") dt[2] = "08";
+    else if (dt[2] == "Sep") dt[2] = "09";
+    else if (dt[2] == "Oct") dt[2] = "10";
+    else if (dt[2] == "Nov") dt[2] = "11";
+    else if (dt[2] == "Dec") dt[2] = "12";
     # else leave it unchanged
-    return dt[0] + "/" + dt[1] + "/" + dt[2];
+    return dt[1] "/" dt[2] "/" dt[3];
 }
 
 BEGIN { state="T"; }
