@@ -3,21 +3,22 @@
 S=$1
 BASE=$(dirname $0)
 BASE=$(readlink -f $BASE)
+FNAME=QuerySensorsThread
 
-if true
+if false
 then
-echo "getting dates"
-DIRS=$(zcat $S/EnetService.log_*.gz | $BASE/plotprep.datum | sort -u)
+  echo "getting dates"
+  DIRS=$(zcat $S/$FNAME.log_*.gz | $BASE/plotprep.datum | sort -u)
 
-echo "found $DIRS"
-for d in $DIRS
-do
-  mkdir -p $d
-done
+  echo "found $DIRS"
+  for d in $DIRS
+  do
+    mkdir -p $d
+  done
 
-echo "getting measure points"
+  echo "getting measure points"
 
-zcat $S/EnetService.log_*.gz | $BASE/plotprep
+  zcat $S/$FNAME.log_*.gz | $BASE/plotprep
 fi
 
 echo "plotting"

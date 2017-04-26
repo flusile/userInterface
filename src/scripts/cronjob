@@ -1,6 +1,6 @@
 #!/bin/bash
 # m h  dom mon dow   command
-# 0 1  *   *   *     crontab
+# 0 1  *   *   *     /home/ulf/src/userinterface/src/scripts/cronjob
 
 BASE=$(dirname $0)
 BASE=$(readlink -f $BASE)

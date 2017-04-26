@@ -1,0 +1,19 @@
+#!/bin/bash
+
+BASE=$(dirname $0)
+BASE=$(readlink -f $BASE)
+
+for y in $1/16/ $1/17/
+do
+  for f in $y/*/*.tar
+  do
+    echo $f
+    tar xf $f
+    zcat QuerySensorsThread.log_* | $BASE/plotprep.datum | sort -u | while read x
+    do
+      mkdir -p $x
+    done
+    zcat QuerySensorsThread.log_* | $BASE/plotprep
+    rm *.log_*
+  done
+done
