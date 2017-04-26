@@ -22,11 +22,12 @@ then
 fi
 
 echo "plotting"
-for d in *-*-*
+for d in */*/*
 do
   echo "  in $d"
   cd $d
-  cat $BASE/verlauf.gplot | gawk -v date=$d '
+  dat=$(echo $d | tr '/' '-')
+  cat $BASE/verlauf.gplot | gawk -v date=$dat '
   // { gsub("{d}", date); print; }' | gnuplot
   cd -
 done

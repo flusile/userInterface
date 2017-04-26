@@ -46,11 +46,12 @@ then
    J=$(dat2jul $(date +"%Y %m %d"))
    let J=J-1
    set -- $(jul2dat $J)
-   D=$(date -d"$1-$2-$3" +"%Y-%b-%d")
+   D=$(date -d"$1-$2-$3" +"%Y-%m-%d")
 fi
 
-rm -rf $D
-mkdir -p $D
+DDir=$(echo $D | tr '-' '/')
+rm -rf $DDir
+mkdir -p $DDir
 
 echo "getting measure points"
 
@@ -65,8 +66,8 @@ do
 done | tocat | fgrep $D | $BASE/plotprep
 
 echo "plotting"
-echo "  in $D"
-cd $D
+echo "  in $DDir"
+cd $DDir
 
 cat $BASE/verlauf.gplot | gawk -v date=$D '
   // { gsub("{d}", date); print; }' | gnuplot

@@ -19,9 +19,11 @@ $BASE/plotday $SS/
 cd $SS
 for f in *.log_*
 do
+  # DS in YYMMDD
   DS=$(echo $f | cut -d '_' -f2)
-  mkdir -p ../arch/$DS
-  mv $f ../arch/$DS
+  DS="../arch/${DS:0:2}/${DS:2:2}/${DS:4:2}"
+  mkdir -p $DS
+  mv $f $DS
 done
 }
 

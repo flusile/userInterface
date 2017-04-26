@@ -7,9 +7,28 @@
 # Sensorname.dat als Filename im dir
 #
 
+function transDate(d)
+{
+    split(d, dt, "-");
+    if      (dt[1] == "Jan") dt[1] = 01;
+    else if (dt[1] == "Feb") dt[1] = 02;
+    else if (dt[1] == "Mar") dt[1] = 03;
+    else if (dt[1] == "Apr") dt[1] = 04;
+    else if (dt[1] == "May") dt[1] = 05;
+    else if (dt[1] == "Jun") dt[1] = 06;
+    else if (dt[1] == "Jul") dt[1] = 07;
+    else if (dt[1] == "Aug") dt[1] = 08;
+    else if (dt[1] == "Sep") dt[1] = 09;
+    else if (dt[1] == "Oct") dt[1] = 10;
+    else if (dt[1] == "Nov") dt[1] = 11;
+    else if (dt[1] == "Dec") dt[1] = 12;
+    # else leave it unchanged
+    return dt[0] + "/" + dt[1] + "/" + dt[2];
+}
+
 BEGIN { state="T"; }
 state == "T" && /^processEvent / && $5 == "SI" {
-d=$2;
+d=transDate($2);
 t=$3;
 temp=$7
 state="N";
