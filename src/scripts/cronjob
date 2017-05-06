@@ -5,8 +5,8 @@
 BASE=$(dirname $0)
 BASE=$(readlink -f $BASE)
 
-SS=/home/ulf/heizung/gz
-DD=/home/ulf/public_html/heizung/bilder
+SS=${1:-/home/ulf/heizung/gz}
+DD=${2:-/home/ulf/public_html/heizung/bilder}
 
 mkdir -p $DD
 
