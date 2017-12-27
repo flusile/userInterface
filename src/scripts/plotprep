@@ -2,39 +2,32 @@
 
 # Datum als dir
 # h:m:s temperatur im File
-# processEvent 2017-Apr-18 21:42:31 : SI 9B0008020B8D8010 27.5000
-# processEvent 2017-Apr-18 21:42:31 : FussbodenRuecklauf=27
+# 2017.12.27 16:21:51.475347 IMMED querySensors processEvent : SI 9B0008020B8D8010 28.0000
+# 2017.12.27 16:21:51.475363 IMMED querySensors processEvent : FussbodenRuecklauf=28
 
 function transDate(d)
 {
-    split(d, dt, "-");
-    if      (dt[2] == "Jan") dt[2] = "01";
-    else if (dt[2] == "Feb") dt[2] = "02";
-    else if (dt[2] == "Mar") dt[2] = "03";
-    else if (dt[2] == "Apr") dt[2] = "04";
-    else if (dt[2] == "May") dt[2] = "05";
-    else if (dt[2] == "Jun") dt[2] = "06";
-    else if (dt[2] == "Jul") dt[2] = "07";
-    else if (dt[2] == "Aug") dt[2] = "08";
-    else if (dt[2] == "Sep") dt[2] = "09";
-    else if (dt[2] == "Oct") dt[2] = "10";
-    else if (dt[2] == "Nov") dt[2] = "11";
-    else if (dt[2] == "Dec") dt[2] = "12";
-    # else leave it unchanged
+    split(d, dt, ".");
     return dt[1] "/" dt[2] "/" dt[3];
 }
 
+function transTime(t)
+{
+    split(t, tt, ".");
+    return tt[1];
+}
+
 BEGIN { state="T"; }
-state == "T" && /^processEvent / && $5 == "SI" {
-d=transDate($2);
-t=$3;
-temp=$7
+state == "T" && / processEvent / && $7 == "SI" {
+d=transDate($1);
+t=transTime($2);
+temp=$9
 state="N";
 next;
 }
 
-state == "N" && /^processEvent / {
-n=$5;
+state == "N" && / processEvent / {
+n=$7;
 split(n, x, "=");
 n=x[1];
 state="T";
