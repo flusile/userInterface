@@ -1,0 +1,16 @@
+#!/bin/bash
+
+BASE=$(dirname $0)
+BASE=$(readlink -f $BASE)
+
+SS=/home/ulf/src/Heizung/workspace/regelung/run/
+DD=/home/ulf/src/Heizung/workspace/regelung/bilder/
+
+doit()
+{
+cd $DD
+$BASE/plottoday $SS
+rsync -av ./ vdr:public_html/heizung/bilder/
+}
+
+doit >>~/tmp/cronjob.log 2>&1
