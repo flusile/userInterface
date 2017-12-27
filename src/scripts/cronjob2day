@@ -3,7 +3,7 @@
 BASE=$(dirname $0)
 BASE=$(readlink -f $BASE)
 
-SS=/home/ulf/src/Heizung/workspace/regelung/run/
+SS=/home/ulf/src/Heizung/workspace/regelung/run/log
 DD=/home/ulf/src/Heizung/workspace/regelung/bilder/
 
 doit()

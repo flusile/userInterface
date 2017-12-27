@@ -47,7 +47,7 @@ then
    #let J=J-1
    set -- $(jul2dat $J)
    D=$(date -d"$1-$2-$3" +"%Y-%m-%d")
-   DP=$(date -d"$1-$2-$3" +"%Y-%b-%d")
+   DP=$(date -d"$1-$2-$3" +"%Y.%m.%d")
 fi
 
 DDir=$(echo $D | tr '-' '/')
@@ -56,14 +56,11 @@ mkdir -p $DDir
 
 echo "getting measure points"
 
-# QuerySensorsThread.log_*
-# processEvent 2017-Apr-18 21:38:31 : ZentralVorlauf=50
-
-#mycat $S/EnetService.log_* | fgrep $D | $BASE/plotprep
-#find $S -name "EnetService.log_*" | sort | tocat | fgrep $D | tee save | $BASE/plotprep
+# querySensors.log_*
+# 2017.12.27 16:18:51.181856 IMMED querySensors processEvent : FussbodenVorlauf=31
 for f in $S
 do
-  ls $f/QuerySensorsThread.log_*
+  ls $f/querySensors.log_*
 done | tocat | fgrep $DP | $BASE/plotprep
 
 echo "plotting"
