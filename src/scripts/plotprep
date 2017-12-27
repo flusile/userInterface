@@ -2,8 +2,6 @@
 
 # Datum als dir
 # h:m:s temperatur im File
-# processEvent 2017-Apr-18 21:42:31 : SI 9B0008020B8D8010 27.5000
-# processEvent 2017-Apr-18 21:42:31 : FussbodenRuecklauf=27
 # 2017.12.27 16:21:51.475347 IMMED querySensors processEvent : SI 9B0008020B8D8010 28.0000
 # 2017.12.27 16:21:51.475363 IMMED querySensors processEvent : FussbodenRuecklauf=28
 
@@ -23,7 +21,7 @@ BEGIN { state="T"; }
 state == "T" && / processEvent / && $7 == "SI" {
 d=transDate($1);
 t=transTime($2);
-temp=$8
+temp=$9
 state="N";
 next;
 }
