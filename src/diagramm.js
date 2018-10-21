@@ -47,7 +47,7 @@ function Diagramm(id_)
   
   // Umrechnunskonstanten fachlich <--> Pixel
   var minutes_per_px = 2; // nur alle 2 Minuten ein Pixel (sonst wirds zu breit)
-  var px_per_grad = 3; // Pixel pro °C
+  var px_per_grad = getAttr("px_per_grad", 3); // Pixel pro °C
 
   // abgeleitete Konstanten für die Diagramm-Abmessungen in px
   var diagramm_width = (zeit_max - zeit_min) / minutes_per_px; // die Breite des Diagramms
@@ -754,7 +754,8 @@ $(function()
   help.html("dunno");
 
   var dia = new Diagramm("montag");
-  dia.setData('[{"ts":0,"temp":40},{"ts":600,"temp":35},{"ts":820,"temp":30},{"ts":1320,"temp":20}]');
+  dia.px_per_grad = 5000;
+  dia.setData('[{"ts":0,"temp":0},{"ts":600,"temp":1},{"ts":820,"temp":0},{"ts":1320,"temp":1}]');
   dia.draw();
 
   var dia2 = new Diagramm("dienstag");
