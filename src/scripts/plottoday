@@ -48,6 +48,7 @@ then
    set -- $(jul2dat $J)
    D=$(date -d"$1-$2-$3" +"%Y-%m-%d")
    DP=$(date -d"$1-$2-$3" +"%Y.%m.%d")
+   MD=$(date -d"$1-$2-$3" +"%m/%d")
 fi
 
 DDir=$(echo $D | tr '-' '/')
@@ -69,6 +70,13 @@ cd $DDir
 
 cat $BASE/verlauf.gplot | gawk -v date=$D '
   // { gsub("{d}", date); print; }' | gnuplot
+
+set -x
+QV=$PWD
+cd ../..
+mkdir -p all
+cd all
+ln -sf ../$MD/verlauf_*.png .
 
 echo "done"
 
